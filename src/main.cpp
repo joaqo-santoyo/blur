@@ -1,6 +1,7 @@
 // Copyright Joaquin Santoyo Lopez
 #include <Windows.h>
 #include <stdio.h>
+#include "glad/glad.h"
 
 
 LRESULT CALLBACK windowProcedure(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -107,6 +108,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     wglMakeCurrent(windowDevice, windowRenderer);
+    gladLoadGL();
 
 
     // Enter window loop

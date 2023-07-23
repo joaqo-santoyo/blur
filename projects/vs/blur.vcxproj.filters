@@ -4,14 +4,28 @@
     <Filter Include="src">
       <UniqueIdentifier>{ad510934-1431-4138-943d-1c1f9ac576f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\glad">
+      <UniqueIdentifier>{bf5550e7-be89-42ac-9efb-acf6da108c18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\glad\glad.c">
+      <Filter>src\glad</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.gitignore" />
     <None Include="..\..\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\glad\glad.h">
+      <Filter>src\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\glad\khrplatform.h">
+      <Filter>src\glad</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
