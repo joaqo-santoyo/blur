@@ -119,6 +119,52 @@ Graphics::~Graphics() {
 
 }
 
+int Graphics::addMesh(float* data, int size) {
+    int mesh;
+    glGenBuffers(1, (GLuint*)&mesh);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh);
+    glBufferData(GL_ARRAY_BUFFER, 6 * 5 * sizeof(float), data, GL_STATIC_DRAW);
+    return mesh;
+}
+
+int Graphics::addTexture(int width, int height, int channels, unsigned char* pixels) {
+    int texture;
+    glGenTextures(1, (GLuint*)&texture);
+    int glTextureType;
+    switch (channels) {
+    case 3:     glTextureType = GL_RGB;  break;
+    case 4:     glTextureType = GL_RGBA; break;
+    default:    glTextureType = GL_RGB;  break;
+    }
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // See https://stackoverflow.com/questions/58925604/glteximage2d-crashing-program
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        glTextureType,
+        width,
+        height,
+        0,
+        glTextureType,
+        GL_UNSIGNED_BYTE,
+        pixels);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    return texture;
+}
+
+int Graphics::getFrameTexture(int frame) {
+    return frames[frame].texture;
+}
+
+void Graphics::addRenderPass(const RenderPass& pass) {
+    renderPasses.push_back(pass);
+}
+
 void Graphics::render() {
     glClearColor(.1f, .1f, .1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -165,50 +211,4 @@ void Graphics::render() {
         }
     }
     renderPasses.clear();
-}
-
-int Graphics::addMesh(float* data, int size) {
-    int mesh;
-    glGenBuffers(1, (GLuint*)&mesh);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh);
-    glBufferData(GL_ARRAY_BUFFER, 6 * 5 * sizeof(float), data, GL_STATIC_DRAW);
-    return mesh;
-}
-
-int Graphics::addTexture(int width, int height, int channels, unsigned char* pixels) {
-    int texture;
-    glGenTextures(1, (GLuint*)&texture);
-    int glTextureType;
-    switch (channels) {
-    case 3:     glTextureType = GL_RGB;  break;
-    case 4:     glTextureType = GL_RGBA; break;
-    default:    glTextureType = GL_RGB;  break;
-    }
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    // See https://stackoverflow.com/questions/58925604/glteximage2d-crashing-program
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        glTextureType,
-        width,
-        height,
-        0,
-        glTextureType,
-        GL_UNSIGNED_BYTE,
-        pixels);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    return texture;
-}
-
-int Graphics::getFrameTexture(int frame) {
-    return frames[frame].texture;
-}
-
-void Graphics::addRenderPass(const RenderPass& pass) {
-    renderPasses.push_back(pass);
 }
