@@ -7,6 +7,11 @@
 // Only int or float uniforms for now
 // Only a single texture and texture unit for now
 
+struct FrameInfo {
+    int width;
+    int height;
+};
+
 struct ShaderInfo {
     std::string name;
     const char* vertexShader;
@@ -25,6 +30,7 @@ struct AttributeInfo {
 };
 
 struct RenderPass {
+    int frame;
     int shaderId;
     int textureId;
     int textureUnit;
@@ -37,7 +43,15 @@ struct RenderPass {
 struct GraphicsInfo {
     int width;
     int height;
+    std::vector<FrameInfo> frames;
     std::vector<ShaderInfo> shaders;
+};
+
+struct Frame {
+    unsigned int id;
+    unsigned int texture;
+    int width;
+    int height;
 };
 
 struct Shader {
@@ -53,12 +67,14 @@ public:
     ~Graphics();
     int addMesh(float* data, int size);
     int addTexture(int width, int height, int channels, unsigned char* pixels);
+    int getFrameTexture(int frame);
     void addRenderPass(const RenderPass& pass);
     void render();
 
 private:
     int width;
     int height;
-    std::vector<Shader> shaders;
     std::vector<RenderPass> renderPasses;
+    std::vector<Shader> shaders;
+    std::vector<Frame> frames;
 };

@@ -15,7 +15,7 @@ attribute vec2 aTexture;
 varying   vec2 vTexture;
 void main() {
     gl_Position = vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
-    vTexture = vec2(aTexture.x, aTexture.y);
+    vTexture = vec2(aTexture.x + 0.001, aTexture.y);
 }
 )";
 const char* imageFragmentSource = R"(
@@ -43,6 +43,10 @@ enum ShaderImageAttributeName {
     ShaderImageAttributeNameCount
 };
 
+enum FrameName {
+    FrameNameA,
+    FrameNameCount
+};
 
 
 
@@ -177,6 +181,10 @@ int main(int argc, char** argv) {
 
 
 
+    // Configure frames
+    FrameInfo frameA;
+    frameA.width = imageWidth;
+    frameA.height = imageHeight;
 
     // Configure shaders
     ShaderInfo shaderImage;
@@ -193,6 +201,8 @@ int main(int argc, char** argv) {
     GraphicsInfo graphicsInfo;
     graphicsInfo.width = imageWidth;
     graphicsInfo.height = imageHeight;
+    graphicsInfo.frames.resize(FrameNameCount);
+    graphicsInfo.frames[FrameNameA] = frameA;
     graphicsInfo.shaders.resize(ShaderNameCount);
     graphicsInfo.shaders[ShaderImage] = shaderImage;
     Graphics graphics(graphicsInfo);
@@ -211,6 +221,7 @@ int main(int argc, char** argv) {
     int textureUnit = 0; // Always the same texture unit
 
     RenderPass pass;
+    pass.frame = FrameNameA;
     pass.shaderId = ShaderImage;
     pass.textureId = texture;
     pass.textureUnit = textureUnit;
@@ -223,6 +234,10 @@ int main(int argc, char** argv) {
         { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
     pass.vertexCount = 6;
+
+    RenderPass pass2 = pass;
+    pass2.frame = -1;
+    pass2.textureId = graphics.getFrameTexture(FrameNameA);
 
     int k = 0;
     // Enter window loop
@@ -237,9 +252,12 @@ int main(int argc, char** argv) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+        if (k > 0) {
+            pass.textureId = graphics.getFrameTexture(FrameNameA); // retrofeed texture
+        }
         k++;
-        if (k % 2 == 0)
-            graphics.addRenderPass(pass);
+        graphics.addRenderPass(pass);
+        graphics.addRenderPass(pass2);
         graphics.render();
         SwapBuffers(windowDevice);
     }

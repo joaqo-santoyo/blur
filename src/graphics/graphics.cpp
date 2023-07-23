@@ -84,6 +84,33 @@ Graphics::Graphics(const GraphicsInfo& info) {
             shader.attributes[j] = glGetAttribLocation(shader.program, shaderInfo.attributes[j]);
         }
     }
+
+    // Frames
+    frames.resize(info.frames.size());
+    for (size_t i = 0; i < frames.size(); i++) {
+        const FrameInfo& frameInfo = info.frames[i];
+        Frame& frame = frames[i];
+        frame.width = frameInfo.width;
+        frame.height = frameInfo.height;
+        glGenFramebuffers(1, &frame.id);
+        glBindFramebuffer(GL_FRAMEBUFFER, frame.id);
+        printf("FrameBuffer: %d %d %d\n", frame.id, frame.width, frame.height);
+        glGenTextures(1, &frame.texture);
+        glBindTexture(GL_TEXTURE_2D, frame.texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame.width, frame.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frame.texture, 0);
+        GLint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE) {
+            printf("Framebuffer error! %d\n", status);
+        }
+        else {
+            printf("FrameBuffer texture good\n");
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
     glViewport(0, 0, width, height);
     initialized = true;
 }
@@ -92,13 +119,21 @@ Graphics::~Graphics() {
 
 }
 
-
 void Graphics::render() {
     glClearColor(.1f, .1f, .1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for (const RenderPass& renderPass : renderPasses) {
         Shader& shader = shaders[renderPass.shaderId];
         glUseProgram(shader.program);
+
+        if (renderPass.frame >= 0) {
+            const Frame& frame = frames[renderPass.frame];
+            glViewport(0, 0, frame.width, frame.height);
+            glBindFramebuffer(GL_FRAMEBUFFER, frame.id);
+        } else { // Binding to the default FrameBuffer
+            glViewport(0, 0, width, height);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
 
         glActiveTexture(GL_TEXTURE0 + renderPass.textureUnit);
         glBindTexture(GL_TEXTURE_2D, renderPass.textureId);
@@ -131,8 +166,6 @@ void Graphics::render() {
     }
     renderPasses.clear();
 }
-
-
 
 int Graphics::addMesh(float* data, int size) {
     int mesh;
@@ -170,6 +203,10 @@ int Graphics::addTexture(int width, int height, int channels, unsigned char* pix
         pixels);
     glGenerateMipmap(GL_TEXTURE_2D);
     return texture;
+}
+
+int Graphics::getFrameTexture(int frame) {
+    return frames[frame].texture;
 }
 
 void Graphics::addRenderPass(const RenderPass& pass) {
