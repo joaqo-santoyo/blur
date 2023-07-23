@@ -48,18 +48,25 @@ varying vec2      vTexture;
 void main() {
     vec2 uTextureSize = vec2(uWidth, uHeight);
 
+    // Fixed-valued kernels
+    #if (KERNEL == 5)
     int n = 5;
     float weight[5] = { 0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216 };
+    #else
+    int n = 11;
+    float weight[11] = { 0.082607, 0.080977, 0.076276, 0.069041, 0.060049,
+                        0.050187, 0.040306, 0.031105, 0.023066, 0.016436, 0.011254 };
+    #endif
 
     vec2 texOffset = 1.0 / uTextureSize; // gets size of single texel
     vec3 result = texture2D(uTexture, vTexture).rgb * weight[0]; // current fragment's contribution
     #ifdef HORIZONTAL
-    for (int i = 1; i < 5; ++i) {
+    for (int i = 1; i < KERNEL; ++i) {
         result += texture2D(uTexture, vTexture + vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
         result += texture2D(uTexture, vTexture - vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
     }
     #else
-    for (int i = 1; i < 5; ++i) {
+    for (int i = 1; i < KERNEL; ++i) {
         result += texture2D(uTexture, vTexture + vec2(0.0, texOffset.y * float(i))).rgb * weight[i];
         result += texture2D(uTexture, vTexture - vec2(0.0, texOffset.y * float(i))).rgb * weight[i];
     }
@@ -273,6 +280,7 @@ int main(int argc, char** argv) {
     shaderHoriBlur.name = "HorizontalBlur";
     shaderHoriBlur.defines = {
         "#define HORIZONTAL\n",
+        "#define KERNEL 11\n",
     };
     shaderHoriBlur.vertexShader = blurVertexSource;
     shaderHoriBlur.fragmentShader = blurFragmentSource;
@@ -288,7 +296,8 @@ int main(int argc, char** argv) {
     ShaderInfo shaderVertBlur;
     shaderVertBlur.name = "VerticalBlur";
     shaderVertBlur.defines = {
-        "#define HORIZONTAL\n",
+        "#define VERTICAL\n",
+        "#define KERNEL 11\n",
     };
     shaderVertBlur.vertexShader = blurVertexSource;
     shaderVertBlur.fragmentShader = blurFragmentSource;
