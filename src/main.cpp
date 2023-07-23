@@ -339,56 +339,58 @@ int main(int argc, char** argv) {
     float radius = 20.0f;
 
 
-    //RenderPass pass0;
-    //pass0.frame = FrameA;
-    //pass0.shaderId = ShaderHoriBlur;
-    //pass0.textureId = texture;
-    //pass0.textureUnit = textureUnit;
-    //pass0.uniformsInt = {
-    //    { ShaderHoriBlurUniformNameTexture, textureUnit },
-    //    { ShaderHoriBlurUniformNameWidth,   imageWidth       },
-    //    { ShaderHoriBlurUniformNameHeight,  imageHeight      },
-    //};
-    //pass0.uniformsFloat = {
-    //    { ShaderHoriBlurUniformNameRadius,  radius }
-    //};
-    //pass0.attributes = {
-    //    { ShaderHoriBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
-    //    { ShaderHoriBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
-    //};
     RenderPass pass0;
     pass0.frame = FrameA;
-    pass0.shaderId = ShaderVertBlur;
+    pass0.shaderId = ShaderHoriBlur;
     pass0.textureId = texture;
     pass0.textureUnit = textureUnit;
     pass0.uniformsInt = {
-        { ShaderVertBlurUniformNameTexture, textureUnit },
-        { ShaderVertBlurUniformNameWidth,   imageWidth       },
-        { ShaderVertBlurUniformNameHeight,  imageHeight      },
+        { ShaderHoriBlurUniformNameTexture, textureUnit },
+        { ShaderHoriBlurUniformNameWidth,   imageWidth       },
+        { ShaderHoriBlurUniformNameHeight,  imageHeight      },
     };
     pass0.uniformsFloat = {
-        { ShaderVertBlurUniformNameRadius,  radius }
+        { ShaderHoriBlurUniformNameRadius,  radius }
     };
     pass0.attributes = {
-        { ShaderVertBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
-        { ShaderVertBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+        { ShaderHoriBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
+        { ShaderHoriBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
     pass0.vertexCount = 6;
 
     RenderPass pass1;
     pass1.frame = -1;
-    pass1.shaderId = ShaderImage;
+    pass1.shaderId = ShaderVertBlur;
     pass1.textureId = graphics.getFrameTexture(FrameA);
     pass1.textureUnit = textureUnit;
     pass1.uniformsInt = {
-        { ShaderImageUniformNameTexture, textureUnit },
+        { ShaderVertBlurUniformNameTexture, textureUnit },
+        { ShaderVertBlurUniformNameWidth,   imageWidth       },
+        { ShaderVertBlurUniformNameHeight,  imageHeight      },
     };
-    pass1.uniformsFloat = { };
+    pass1.uniformsFloat = {
+        { ShaderVertBlurUniformNameRadius,  radius }
+    };
     pass1.attributes = {
-        { ShaderImageAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
-        { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+        { ShaderVertBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
+        { ShaderVertBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
     pass1.vertexCount = 6;
+
+    //RenderPass pass1;
+    //pass1.frame = -1;
+    //pass1.shaderId = ShaderImage;
+    //pass1.textureId = graphics.getFrameTexture(FrameA);
+    //pass1.textureUnit = textureUnit;
+    //pass1.uniformsInt = {
+    //    { ShaderImageUniformNameTexture, textureUnit },
+    //};
+    //pass1.uniformsFloat = { };
+    //pass1.attributes = {
+    //    { ShaderImageAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
+    //    { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+    //};
+    //pass1.vertexCount = 6;
 
 
     // Enter window loop
