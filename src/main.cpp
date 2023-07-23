@@ -4,6 +4,59 @@
 #include "glad/glad.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "images/stb_image.h"
+#include "graphics/graphics.h"
+
+
+
+const char* imageVertexSource = R"(
+precision mediump float;
+attribute vec3 aPosition;
+attribute vec2 aTexture;
+varying   vec2 vTexture;
+void main() {
+    gl_Position = vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
+    vTexture = vec2(aTexture.x, aTexture.y);
+}
+)";
+const char* imageFragmentSource = R"(
+precision mediump float;
+uniform sampler2D uTexture;
+varying vec2      vTexture;
+void main() {
+    gl_FragColor = vec4(texture2D(uTexture, vTexture).rgb, 1.0);
+}
+)";
+
+enum ShaderName {
+    ShaderImage,
+    ShaderNameCount
+};
+
+enum ShaderImageUniformName {
+    ShaderImageUniformNameTexture,
+    ShaderImageUniformNameCount
+};
+
+enum ShaderImageAttributeName {
+    ShaderImageAttributeNamePosition,
+    ShaderImageAttributeNameTexture,
+    ShaderImageAttributeNameCount
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 LRESULT CALLBACK windowProcedure(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -122,6 +175,43 @@ int main(int argc, char** argv) {
     gladLoadGL();
 
 
+
+
+
+    // Configure shaders
+    ShaderInfo shaderImage;
+    shaderImage.name = "ShaderImage";
+    shaderImage.vertexShader = imageVertexSource;
+    shaderImage.fragmentShader = imageFragmentSource;
+    shaderImage.uniforms.resize(ShaderImageUniformNameCount);
+    shaderImage.uniforms[ShaderImageUniformNameTexture] = "uTexture";
+    shaderImage.attributes.resize(ShaderImageAttributeNameCount);
+    shaderImage.attributes[ShaderImageAttributeNamePosition] = "aPosition";
+    shaderImage.attributes[ShaderImageAttributeNameTexture] = "aTexture";
+
+    // Configure graphics
+    GraphicsInfo graphicsInfo;
+    graphicsInfo.width = imageWidth;
+    graphicsInfo.height = imageHeight;
+    graphicsInfo.shaders.resize(ShaderNameCount);
+    graphicsInfo.shaders[ShaderImage] = shaderImage;
+    Graphics graphics(graphicsInfo);
+
+    // Configure graphics resources
+    float quadData[] = {
+        -1, -1, 0, 0, 0,
+         1,  1, 0, 1, 1,
+        -1,  1, 0, 0, 1,
+        -1, -1, 0, 0, 0,
+         1, -1, 0, 1, 0,
+         1,  1, 0, 1, 1,
+    };
+    int quad = graphics.addMesh(quadData, 6 * 5 * sizeof(float));
+    int texture = graphics.addTexture(imageWidth, imageHeight, imageChannels, pixels);
+    int textureUnit = 0; // Always the same texture unit
+
+
+
     // Enter window loop
     WPARAM running = 1;
     ShowWindow(windowHandle, SW_SHOWNORMAL);
@@ -134,6 +224,20 @@ int main(int argc, char** argv) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+        graphics.render(
+            ShaderImage,
+            texture,
+            textureUnit,
+            {
+                { ShaderImageUniformNameTexture, textureUnit },
+            },
+            { },
+            {
+                { ShaderImageAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
+                { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+            },
+            6
+        );
         SwapBuffers(windowDevice);
     }
 

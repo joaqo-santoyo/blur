@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\glad\glad.c" />
+    <ClCompile Include="..\..\src\graphics\graphics.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\glad\glad.h" />
     <ClInclude Include="..\..\src\glad\khrplatform.h" />
+    <ClInclude Include="..\..\src\graphics\graphics.h" />
     <ClInclude Include="..\..\src\images\stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

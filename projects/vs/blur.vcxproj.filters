@@ -10,6 +10,9 @@
     <Filter Include="src\images">
       <UniqueIdentifier>{ff9b5c5d-9400-48dd-879e-2ecf7ad8a0c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\graphics">
+      <UniqueIdentifier>{a3d8783c-f174-45ee-ae09-cbaf0750b68e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\main.cpp">
@@ -17,6 +20,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\glad\glad.c">
       <Filter>src\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\graphics.cpp">
+      <Filter>src\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +38,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\images\stb_image.h">
       <Filter>src\images</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\graphics.h">
+      <Filter>src\graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
