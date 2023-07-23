@@ -2,6 +2,8 @@
 #include <Windows.h>
 #include <stdio.h>
 #include "glad/glad.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "images/stb_image.h"
 
 
 LRESULT CALLBACK windowProcedure(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -22,6 +24,15 @@ int main(int argc, char** argv) {
         printf("Usage: blur.exe <image_filename>");
         return 1;
     }
+    // Create the image first of all so we set the viewport accordingly
+    int imageWidth, imageHeight, imageChannels;
+    stbi_set_flip_vertically_on_load(1);
+    unsigned char* pixels = stbi_load(argv[1], &imageWidth, &imageHeight, &imageChannels, 0);
+    if (pixels == NULL) {
+        printf("Error loading the image\n");
+        exit(1);
+    }
+    printf("Image: { %s, %d x %d x %d }\n", argv[1], imageWidth, imageHeight, imageChannels);
 
     // Create win32 window
     const wchar_t* windowName = L"Blur";
@@ -46,8 +57,8 @@ int main(int argc, char** argv) {
     RECT rect;
     rect.left = 0;
     rect.top = 0;
-    rect.right = 512;
-    rect.bottom = 512;
+    rect.right = imageWidth;
+    rect.bottom = imageHeight;
     AdjustWindowRect(&rect, style, FALSE);
     HWND windowHandle = CreateWindow(
         className,

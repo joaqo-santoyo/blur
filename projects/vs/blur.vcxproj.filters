@@ -7,6 +7,9 @@
     <Filter Include="src\glad">
       <UniqueIdentifier>{bf5550e7-be89-42ac-9efb-acf6da108c18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\images">
+      <UniqueIdentifier>{ff9b5c5d-9400-48dd-879e-2ecf7ad8a0c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\main.cpp">
@@ -26,6 +29,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\glad\khrplatform.h">
       <Filter>src\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\images\stb_image.h">
+      <Filter>src\images</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
