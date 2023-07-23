@@ -3,6 +3,9 @@
 #include <vector>
 
 // Simple graphics engine
+// Only GL_FLOAT atttributes for now
+// Only int or float uniforms for now
+// Only a single texture and texture unit for now
 
 struct ShaderInfo {
     std::string name;
@@ -14,11 +17,21 @@ struct ShaderInfo {
 
 struct AttributeInfo {
     int attr;
-    int buffer;
+    int bufferId;
     int count;
     bool normalized;
     int stride;
     int offset;
+};
+
+struct RenderPass {
+    int shaderId;
+    int textureId;
+    int textureUnit;
+    std::vector<std::pair<int, int>> uniformsInt;
+    std::vector<std::pair<int, float>> uniformsFloat;
+    std::vector<AttributeInfo> attributes;
+    int vertexCount;
 };
 
 struct GraphicsInfo {
@@ -40,18 +53,12 @@ public:
     ~Graphics();
     int addMesh(float* data, int size);
     int addTexture(int width, int height, int channels, unsigned char* pixels);
-    void render(
-        int shaderId,
-        int texture,
-        int textureUnit,
-        std::vector<std::pair<int, int>> uniformsInt,
-        std::vector<std::pair<int, float>> uniformsFloat,
-        std::vector<AttributeInfo> attributes,
-        int vertexCount
-    );
+    void addRenderPass(const RenderPass& pass);
+    void render();
 
 private:
     int width;
     int height;
     std::vector<Shader> shaders;
+    std::vector<RenderPass> renderPasses;
 };

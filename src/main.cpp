@@ -210,8 +210,21 @@ int main(int argc, char** argv) {
     int texture = graphics.addTexture(imageWidth, imageHeight, imageChannels, pixels);
     int textureUnit = 0; // Always the same texture unit
 
+    RenderPass pass;
+    pass.shaderId = ShaderImage;
+    pass.textureId = texture;
+    pass.textureUnit = textureUnit;
+    pass.uniformsInt = {
+        { ShaderImageUniformNameTexture, textureUnit },
+    };
+    pass.uniformsFloat = { };
+    pass.attributes = {
+        { ShaderImageAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
+        { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+    };
+    pass.vertexCount = 6;
 
-
+    int k = 0;
     // Enter window loop
     WPARAM running = 1;
     ShowWindow(windowHandle, SW_SHOWNORMAL);
@@ -224,20 +237,10 @@ int main(int argc, char** argv) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        graphics.render(
-            ShaderImage,
-            texture,
-            textureUnit,
-            {
-                { ShaderImageUniformNameTexture, textureUnit },
-            },
-            { },
-            {
-                { ShaderImageAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
-                { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
-            },
-            6
-        );
+        k++;
+        if (k % 2 == 0)
+            graphics.addRenderPass(pass);
+        graphics.render();
         SwapBuffers(windowDevice);
     }
 

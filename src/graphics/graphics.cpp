@@ -93,48 +93,43 @@ Graphics::~Graphics() {
 }
 
 
-void Graphics::render(
-    int shaderId,
-    int texture,
-    int textureUnit,
-    std::vector<std::pair<int, int>> uniformsInt,
-    std::vector<std::pair<int, float>> uniformsFloat,
-    std::vector<AttributeInfo> attributes,
-    int vertexCount
-) {
+void Graphics::render() {
     glClearColor(.1f, .1f, .1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    Shader& shader = shaders[shaderId];
-    glUseProgram(shader.program);
+    for (const RenderPass& renderPass : renderPasses) {
+        Shader& shader = shaders[renderPass.shaderId];
+        glUseProgram(shader.program);
 
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE0 + renderPass.textureUnit);
+        glBindTexture(GL_TEXTURE_2D, renderPass.textureId);
 
-    for (const std::pair<int, int>& uniformInt : uniformsInt) {
-        int id = uniformInt.first;
-        int value = uniformInt.second;
-        glUniform1i(shader.uniforms[id], value);
+        for (const std::pair<int, int>& uniformInt : renderPass.uniformsInt) {
+            int id = uniformInt.first;
+            int value = uniformInt.second;
+            glUniform1i(shader.uniforms[id], value);
+        }
+
+        for (const std::pair<int, float>& uniformFloat : renderPass.uniformsFloat) {
+            int id = uniformFloat.first;
+            float value = uniformFloat.second;
+            glUniform1f(shader.uniforms[id], value);
+        }
+
+        for (const AttributeInfo& attrInfo : renderPass.attributes) {
+            int attr = shader.attributes[attrInfo.attr];
+            GLboolean normalized = attrInfo.normalized ? GL_TRUE : GL_FALSE;
+            glBindBuffer(GL_ARRAY_BUFFER, attrInfo.bufferId);
+            glEnableVertexAttribArray(attr);
+            glVertexAttribPointer(attr, attrInfo.count, GL_FLOAT, normalized, attrInfo.stride, reinterpret_cast<void*>(attrInfo.offset));
+        }
+
+        glDrawArrays(GL_TRIANGLES, 0, renderPass.vertexCount);
+
+        for (int attr : shader.attributes) {
+            glDisableVertexAttribArray(attr);
+        }
     }
-
-    for (const std::pair<int, float>& uniformFloat : uniformsFloat) {
-        int id = uniformFloat.first;
-        float value = uniformFloat.second;
-        glUniform1f(shader.uniforms[id], value);
-    }
-
-    for (const AttributeInfo& attrInfo : attributes) {
-        int attr = shader.attributes[attrInfo.attr];
-        GLboolean normalized = attrInfo.normalized ? GL_TRUE : GL_FALSE;
-        glBindBuffer(GL_ARRAY_BUFFER, attrInfo.buffer);
-        glEnableVertexAttribArray(attr);
-        glVertexAttribPointer(attr, attrInfo.count, GL_FLOAT, normalized, attrInfo.stride, reinterpret_cast<void*>(attrInfo.offset));
-    }
-
-    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-    for (int attr : shader.attributes) {
-        glDisableVertexAttribArray(attr);
-    }
+    renderPasses.clear();
 }
 
 
@@ -175,4 +170,8 @@ int Graphics::addTexture(int width, int height, int channels, unsigned char* pix
         pixels);
     glGenerateMipmap(GL_TEXTURE_2D);
     return texture;
+}
+
+void Graphics::addRenderPass(const RenderPass& pass) {
+    renderPasses.push_back(pass);
 }
