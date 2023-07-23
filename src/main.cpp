@@ -53,9 +53,13 @@ void main() {
 
     vec2 texOffset = 1.0 / uTextureSize; // gets size of single texel
     vec3 result = texture2D(uTexture, vTexture).rgb * weight[0]; // current fragment's contribution
+    //for (int i = 1; i < 5; ++i) {
+    //    result += texture2D(uTexture, vTexture + vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
+    //    result += texture2D(uTexture, vTexture - vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
+    //}
     for (int i = 1; i < 5; ++i) {
-        result += texture2D(uTexture, vTexture + vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
-        result += texture2D(uTexture, vTexture - vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
+        result += texture2D(uTexture, vTexture + vec2(0.0, texOffset.y * float(i))).rgb * weight[i];
+        result += texture2D(uTexture, vTexture - vec2(0.0, texOffset.y * float(i))).rgb * weight[i];
     }
 
     gl_FragColor = vec4(result, 1.0);
@@ -65,6 +69,7 @@ void main() {
 enum ShaderName {
     ShaderImage,
     ShaderHoriBlur,
+    ShaderVertBlur,
     ShaderNameCount
 };
 
@@ -91,6 +96,20 @@ enum ShaderHoriBlurAttributeName {
     ShaderHoriBlurAttributeNamePosition,
     ShaderHoriBlurAttributeNameTexture,
     ShaderHoriBlurAttributeNameCount
+};
+
+enum ShaderVertBlurUniformName {
+    ShaderVertBlurUniformNameTexture,
+    ShaderVertBlurUniformNameWidth,
+    ShaderVertBlurUniformNameHeight,
+    ShaderVertBlurUniformNameRadius,
+    ShaderVertBlurUniformNameCount
+};
+
+enum ShaderVertBlurAttributeName {
+    ShaderVertBlurAttributeNamePosition,
+    ShaderVertBlurAttributeNameTexture,
+    ShaderVertBlurAttributeNameCount
 };
 
 enum FrameName {
@@ -260,6 +279,19 @@ int main(int argc, char** argv) {
     shaderHoriBlur.attributes[ShaderHoriBlurAttributeNamePosition] = "aPosition";
     shaderHoriBlur.attributes[ShaderHoriBlurAttributeNameTexture] = "aTexture";
 
+    ShaderInfo shaderVertBlur;
+    shaderVertBlur.name = "VerticalBlur";
+    shaderVertBlur.vertexShader = blurVertexSource;
+    shaderVertBlur.fragmentShader = blurFragmentSource;
+    shaderVertBlur.uniforms.resize(ShaderVertBlurUniformNameCount);
+    shaderVertBlur.uniforms[ShaderVertBlurUniformNameTexture] = "uTexture";
+    shaderVertBlur.uniforms[ShaderVertBlurUniformNameWidth] = "uWidth";
+    shaderVertBlur.uniforms[ShaderVertBlurUniformNameHeight] = "uHeight";
+    shaderVertBlur.uniforms[ShaderVertBlurUniformNameRadius] = "uRadius";
+    shaderVertBlur.attributes.resize(ShaderVertBlurAttributeNameCount);
+    shaderVertBlur.attributes[ShaderVertBlurAttributeNamePosition] = "aPosition";
+    shaderVertBlur.attributes[ShaderVertBlurAttributeNameTexture] = "aTexture";
+
 
 
     // Configure graphics
@@ -271,6 +303,7 @@ int main(int argc, char** argv) {
     graphicsInfo.shaders.resize(ShaderNameCount);
     graphicsInfo.shaders[ShaderImage] = shaderImage;
     graphicsInfo.shaders[ShaderHoriBlur] = shaderHoriBlur;
+    graphicsInfo.shaders[ShaderVertBlur] = shaderVertBlur;
     Graphics graphics(graphicsInfo);
 
     // Configure graphics resources
@@ -288,24 +321,40 @@ int main(int argc, char** argv) {
     float radius = 20.0f;
 
 
+    //RenderPass pass0;
+    //pass0.frame = FrameA;
+    //pass0.shaderId = ShaderHoriBlur;
+    //pass0.textureId = texture;
+    //pass0.textureUnit = textureUnit;
+    //pass0.uniformsInt = {
+    //    { ShaderHoriBlurUniformNameTexture, textureUnit },
+    //    { ShaderHoriBlurUniformNameWidth,   imageWidth       },
+    //    { ShaderHoriBlurUniformNameHeight,  imageHeight      },
+    //};
+    //pass0.uniformsFloat = {
+    //    { ShaderHoriBlurUniformNameRadius,  radius }
+    //};
+    //pass0.attributes = {
+    //    { ShaderHoriBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
+    //    { ShaderHoriBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+    //};
     RenderPass pass0;
     pass0.frame = FrameA;
-    pass0.shaderId = ShaderHoriBlur;
+    pass0.shaderId = ShaderVertBlur;
     pass0.textureId = texture;
     pass0.textureUnit = textureUnit;
     pass0.uniformsInt = {
-        { ShaderHoriBlurUniformNameTexture, textureUnit },
-        { ShaderHoriBlurUniformNameWidth,   imageWidth       },
-        { ShaderHoriBlurUniformNameHeight,  imageHeight      },
+        { ShaderVertBlurUniformNameTexture, textureUnit },
+        { ShaderVertBlurUniformNameWidth,   imageWidth       },
+        { ShaderVertBlurUniformNameHeight,  imageHeight      },
     };
     pass0.uniformsFloat = {
-        { ShaderHoriBlurUniformNameRadius,  radius }
+        { ShaderVertBlurUniformNameRadius,  radius }
     };
     pass0.attributes = {
-        { ShaderHoriBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
-        { ShaderHoriBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+        { ShaderVertBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
+        { ShaderVertBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
-
     pass0.vertexCount = 6;
 
     RenderPass pass1;
@@ -322,6 +371,7 @@ int main(int argc, char** argv) {
         { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
     pass1.vertexCount = 6;
+
 
     // Enter window loop
     WPARAM running = 1;
