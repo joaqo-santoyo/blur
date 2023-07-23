@@ -49,24 +49,42 @@ void main() {
     vec2 uTextureSize = vec2(uWidth, uHeight);
 
     // Fixed-valued kernels
-    #if (KERNEL == 5)
-    int n = 5;
-    float weight[5] = { 0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216 };
-    #else
-    int n = 11;
-    float weight[11] = { 0.082607, 0.080977, 0.076276, 0.069041, 0.060049,
-                        0.050187, 0.040306, 0.031105, 0.023066, 0.016436, 0.011254 };
-    #endif
+    //#if (KERNEL == 5)
+    //int n = 5;
+    //float weight[5] = { 0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216 };
+    //#else
+    //int n = 11;
+    //float weight[11] = { 0.082607, 0.080977, 0.076276, 0.069041, 0.060049,
+    //                     0.050187, 0.040306, 0.031105, 0.023066, 0.016436, 0.011254 };
+    //#endif
+
+    // Compute kernel in runtime. Might be too heavy?
+    // See https://stackoverflow.com/questions/8204645/implementing-gaussian-blur-how-to-calculate-convolution-matrix-kernel
+    float weight[KERNEL];
+    float x = 2.0 * pow(uRadius, 2.0);
+    float sum = 0;
+    for (int i = 0; i < KERNEL; i++) {
+        weight[i] = exp(-(pow(float(i), 2.0) / x));
+        sum += weight[i];
+    }
+    // Sum the other wing of the kernel for proper normalization (minus center)
+    for (int i = 1; i < KERNEL; i++) {
+        sum += weight[i];
+    }
+    for (int i = 0; i < KERNEL; i++) {
+        weight[i] /= sum;
+    }
+
 
     vec2 texOffset = 1.0 / uTextureSize; // gets size of single texel
     vec3 result = texture2D(uTexture, vTexture).rgb * weight[0]; // current fragment's contribution
     #ifdef HORIZONTAL
-    for (int i = 1; i < KERNEL; ++i) {
+    for (int i = 1; i < KERNEL; i++) {
         result += texture2D(uTexture, vTexture + vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
         result += texture2D(uTexture, vTexture - vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
     }
     #else
-    for (int i = 1; i < KERNEL; ++i) {
+    for (int i = 1; i < KERNEL; i++) {
         result += texture2D(uTexture, vTexture + vec2(0.0, texOffset.y * float(i))).rgb * weight[i];
         result += texture2D(uTexture, vTexture - vec2(0.0, texOffset.y * float(i))).rgb * weight[i];
     }
@@ -336,7 +354,7 @@ int main(int argc, char** argv) {
     int quad = graphics.addMesh(quadData, 6 * 5 * sizeof(float));
     int texture = graphics.addTexture(imageWidth, imageHeight, imageChannels, pixels);
     int textureUnit = 0; // Always the same texture unit
-    float radius = 20.0f;
+    float radius = 5.0f;
 
 
     RenderPass pass0;
