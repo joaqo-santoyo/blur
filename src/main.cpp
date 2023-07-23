@@ -53,14 +53,17 @@ void main() {
 
     vec2 texOffset = 1.0 / uTextureSize; // gets size of single texel
     vec3 result = texture2D(uTexture, vTexture).rgb * weight[0]; // current fragment's contribution
-    //for (int i = 1; i < 5; ++i) {
-    //    result += texture2D(uTexture, vTexture + vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
-    //    result += texture2D(uTexture, vTexture - vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
-    //}
+    #ifdef HORIZONTAL
+    for (int i = 1; i < 5; ++i) {
+        result += texture2D(uTexture, vTexture + vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
+        result += texture2D(uTexture, vTexture - vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
+    }
+    #else
     for (int i = 1; i < 5; ++i) {
         result += texture2D(uTexture, vTexture + vec2(0.0, texOffset.y * float(i))).rgb * weight[i];
         result += texture2D(uTexture, vTexture - vec2(0.0, texOffset.y * float(i))).rgb * weight[i];
     }
+    #endif
 
     gl_FragColor = vec4(result, 1.0);
 }
@@ -268,6 +271,9 @@ int main(int argc, char** argv) {
 
     ShaderInfo shaderHoriBlur;
     shaderHoriBlur.name = "HorizontalBlur";
+    shaderHoriBlur.defines = {
+        "#define HORIZONTAL\n",
+    };
     shaderHoriBlur.vertexShader = blurVertexSource;
     shaderHoriBlur.fragmentShader = blurFragmentSource;
     shaderHoriBlur.uniforms.resize(ShaderHoriBlurUniformNameCount);
@@ -281,6 +287,9 @@ int main(int argc, char** argv) {
 
     ShaderInfo shaderVertBlur;
     shaderVertBlur.name = "VerticalBlur";
+    shaderVertBlur.defines = {
+        "#define HORIZONTAL\n",
+    };
     shaderVertBlur.vertexShader = blurVertexSource;
     shaderVertBlur.fragmentShader = blurFragmentSource;
     shaderVertBlur.uniforms.resize(ShaderVertBlurUniformNameCount);

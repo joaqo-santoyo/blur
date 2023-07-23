@@ -4,9 +4,11 @@
 
 
 
-static int compileShader(const char* source, int* shader, GLenum type) {
+static int compileShader(const std::vector<const char*>& defines, const char* source, int* shader, GLenum type) {
     int s = glCreateShader(type);
-    glShaderSource(s, 1, &source, NULL);
+    std::vector<const char*> sources = defines;
+    sources.push_back(source);
+    glShaderSource(s, sources.size(), sources.data(), NULL);
     glCompileShader(s);
     GLint params;
     glGetShaderiv(s, GL_COMPILE_STATUS, &params);
@@ -57,11 +59,11 @@ Graphics::Graphics(const GraphicsInfo& info) {
     for (size_t i = 0; i < info.shaders.size(); i++) {
         const ShaderInfo& shaderInfo = info.shaders[i];
         int v, f, p;
-        if (!compileShader(shaderInfo.vertexShader, &v, GL_VERTEX_SHADER)) {
+        if (!compileShader(shaderInfo.defines, shaderInfo.vertexShader, &v, GL_VERTEX_SHADER)) {
             printf("Vertex shader compilation failed: %s", shaderInfo.name.c_str());
             return;
         };
-        if (!compileShader(shaderInfo.fragmentShader, &f, GL_FRAGMENT_SHADER)) {
+        if (!compileShader(shaderInfo.defines, shaderInfo.fragmentShader, &f, GL_FRAGMENT_SHADER)) {
             printf("Fragment shader compilation failed: %s", shaderInfo.name.c_str());
             return;
         };

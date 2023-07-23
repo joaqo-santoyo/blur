@@ -14,6 +14,7 @@ struct FrameInfo {
 
 struct ShaderInfo {
     std::string name;
+    std::vector<const char*> defines;
     const char* vertexShader;
     const char* fragmentShader;
     std::vector<const char*> uniforms;
