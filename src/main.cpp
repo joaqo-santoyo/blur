@@ -15,7 +15,7 @@ attribute vec2 aTexture;
 varying   vec2 vTexture;
 void main() {
     gl_Position = vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
-    vTexture = vec2(aTexture.x + 0.001, aTexture.y);
+    vTexture = vec2(aTexture.x, aTexture.y);
 }
 )";
 const char* imageFragmentSource = R"(
@@ -27,8 +27,44 @@ void main() {
 }
 )";
 
+const char* blurVertexSource = R"(
+precision mediump float;
+attribute vec3 aPosition;
+attribute vec2 aTexture;
+varying   vec2 vTexture;
+void main() {
+    gl_Position = vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
+    vTexture = vec2(aTexture.x, aTexture.y);
+}
+)";
+
+const char* blurFragmentSource = R"(
+precision mediump float;
+uniform sampler2D uTexture;
+uniform int       uWidth;
+uniform int       uHeight;
+uniform float     uRadius;
+varying vec2      vTexture;
+void main() {
+    vec2 uTextureSize = vec2(uWidth, uHeight);
+
+    int n = 5;
+    float weight[5] = { 0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216 };
+
+    vec2 texOffset = 1.0 / uTextureSize; // gets size of single texel
+    vec3 result = texture2D(uTexture, vTexture).rgb * weight[0]; // current fragment's contribution
+    for (int i = 1; i < 5; ++i) {
+        result += texture2D(uTexture, vTexture + vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
+        result += texture2D(uTexture, vTexture - vec2(texOffset.x * float(i), 0.0)).rgb * weight[i];
+    }
+
+    gl_FragColor = vec4(result, 1.0);
+}
+)";
+
 enum ShaderName {
     ShaderImage,
+    ShaderHoriBlur,
     ShaderNameCount
 };
 
@@ -43,8 +79,22 @@ enum ShaderImageAttributeName {
     ShaderImageAttributeNameCount
 };
 
+enum ShaderHoriBlurUniformName {
+    ShaderHoriBlurUniformNameTexture,
+    ShaderHoriBlurUniformNameWidth,
+    ShaderHoriBlurUniformNameHeight,
+    ShaderHoriBlurUniformNameRadius,
+    ShaderHoriBlurUniformNameCount
+};
+
+enum ShaderHoriBlurAttributeName {
+    ShaderHoriBlurAttributeNamePosition,
+    ShaderHoriBlurAttributeNameTexture,
+    ShaderHoriBlurAttributeNameCount
+};
+
 enum FrameName {
-    FrameNameA,
+    FrameA,
     FrameNameCount
 };
 
@@ -197,14 +247,30 @@ int main(int argc, char** argv) {
     shaderImage.attributes[ShaderImageAttributeNamePosition] = "aPosition";
     shaderImage.attributes[ShaderImageAttributeNameTexture] = "aTexture";
 
+    ShaderInfo shaderHoriBlur;
+    shaderHoriBlur.name = "HorizontalBlur";
+    shaderHoriBlur.vertexShader = blurVertexSource;
+    shaderHoriBlur.fragmentShader = blurFragmentSource;
+    shaderHoriBlur.uniforms.resize(ShaderHoriBlurUniformNameCount);
+    shaderHoriBlur.uniforms[ShaderHoriBlurUniformNameTexture] = "uTexture";
+    shaderHoriBlur.uniforms[ShaderHoriBlurUniformNameWidth] = "uWidth";
+    shaderHoriBlur.uniforms[ShaderHoriBlurUniformNameHeight] = "uHeight";
+    shaderHoriBlur.uniforms[ShaderHoriBlurUniformNameRadius] = "uRadius";
+    shaderHoriBlur.attributes.resize(ShaderHoriBlurAttributeNameCount);
+    shaderHoriBlur.attributes[ShaderHoriBlurAttributeNamePosition] = "aPosition";
+    shaderHoriBlur.attributes[ShaderHoriBlurAttributeNameTexture] = "aTexture";
+
+
+
     // Configure graphics
     GraphicsInfo graphicsInfo;
     graphicsInfo.width = imageWidth;
     graphicsInfo.height = imageHeight;
     graphicsInfo.frames.resize(FrameNameCount);
-    graphicsInfo.frames[FrameNameA] = frameA;
+    graphicsInfo.frames[FrameA] = frameA;
     graphicsInfo.shaders.resize(ShaderNameCount);
     graphicsInfo.shaders[ShaderImage] = shaderImage;
+    graphicsInfo.shaders[ShaderHoriBlur] = shaderHoriBlur;
     Graphics graphics(graphicsInfo);
 
     // Configure graphics resources
@@ -219,27 +285,44 @@ int main(int argc, char** argv) {
     int quad = graphics.addMesh(quadData, 6 * 5 * sizeof(float));
     int texture = graphics.addTexture(imageWidth, imageHeight, imageChannels, pixels);
     int textureUnit = 0; // Always the same texture unit
+    float radius = 20.0f;
 
-    RenderPass pass;
-    pass.frame = FrameNameA;
-    pass.shaderId = ShaderImage;
-    pass.textureId = texture;
-    pass.textureUnit = textureUnit;
-    pass.uniformsInt = {
+
+    RenderPass pass0;
+    pass0.frame = FrameA;
+    pass0.shaderId = ShaderHoriBlur;
+    pass0.textureId = texture;
+    pass0.textureUnit = textureUnit;
+    pass0.uniformsInt = {
+        { ShaderHoriBlurUniformNameTexture, textureUnit },
+        { ShaderHoriBlurUniformNameWidth,   imageWidth       },
+        { ShaderHoriBlurUniformNameHeight,  imageHeight      },
+    };
+    pass0.uniformsFloat = {
+        { ShaderHoriBlurUniformNameRadius,  radius }
+    };
+    pass0.attributes = {
+        { ShaderHoriBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
+        { ShaderHoriBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+    };
+
+    pass0.vertexCount = 6;
+
+    RenderPass pass1;
+    pass1.frame = -1;
+    pass1.shaderId = ShaderImage;
+    pass1.textureId = graphics.getFrameTexture(FrameA);
+    pass1.textureUnit = textureUnit;
+    pass1.uniformsInt = {
         { ShaderImageUniformNameTexture, textureUnit },
     };
-    pass.uniformsFloat = { };
-    pass.attributes = {
+    pass1.uniformsFloat = { };
+    pass1.attributes = {
         { ShaderImageAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
         { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
-    pass.vertexCount = 6;
+    pass1.vertexCount = 6;
 
-    RenderPass pass2 = pass;
-    pass2.frame = -1;
-    pass2.textureId = graphics.getFrameTexture(FrameNameA);
-
-    int k = 0;
     // Enter window loop
     WPARAM running = 1;
     ShowWindow(windowHandle, SW_SHOWNORMAL);
@@ -252,12 +335,8 @@ int main(int argc, char** argv) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        if (k > 0) {
-            pass.textureId = graphics.getFrameTexture(FrameNameA); // retrofeed texture
-        }
-        k++;
-        graphics.addRenderPass(pass);
-        graphics.addRenderPass(pass2);
+        graphics.addRenderPass(pass0);
+        graphics.addRenderPass(pass1);
         graphics.render();
         SwapBuffers(windowDevice);
     }
