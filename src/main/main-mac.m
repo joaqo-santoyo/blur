@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
+#include "app.h"
 
 
 
@@ -10,7 +11,7 @@
 @end
 @implementation AppDelegate
 - (void) applicationDidFinishLaunching:(NSNotification*) notification {
-    NSRect rect = NSMakeRect(0, 0, 512, 512);
+    NSRect rect = NSMakeRect(0, 0, screenInfo.width, screenInfo.height);
     self.window = [[NSWindow alloc]
        initWithContentRect:rect
        styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
@@ -19,11 +20,11 @@
     ];
     [self.window setTitle:@"Hello AppKit"];
     [self.window cascadeTopLeftFromPoint:NSMakePoint(100,100)];
-    
-    NSTextView* textView = [[NSTextView alloc] initWithFrame:rect];
-    [textView setString:@"Hello AppKit"];
-    [self.window.contentView addSubview:textView];
-    
+
+//    NSTextView* textView = [[NSTextView alloc] initWithFrame:rect];
+//    [textView setString:@"Hello AppKit"];
+//    [self.window.contentView addSubview:textView];
+
     NSOpenGLPixelFormatAttribute attributes[] = {
         NSOpenGLPFADoubleBuffer,
         NSOpenGLPFADepthSize, 24,
@@ -32,8 +33,10 @@
     NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
     self.openGLView = [[NSOpenGLView alloc] initWithFrame:rect pixelFormat:pixelFormat];
     [self.window.contentView addSubview:self.openGLView];
-    
+
     [self.window makeKeyAndOrderFront:nil];
+    NSLog(@"hello");
+    appInit();
 }
 @end
 
@@ -51,6 +54,7 @@
 
 
 int main(int argc, char* argv[]) {
+    appEntry(argc, argv);
     @autoreleasepool {
         AppDelegate* appDelegate = [[AppDelegate alloc] init];
         NSApplication* app = NSApplication.sharedApplication;

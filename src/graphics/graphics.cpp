@@ -1,5 +1,10 @@
 #include "graphics.h"
-#include "../glad/glad.h"
+#ifdef WIN32
+    #include "../glad/glad.h"
+#else
+    #include <OpenGL/gl.h>
+    #include <OpenGL/OpenGL.h>
+#endif
 
 
 

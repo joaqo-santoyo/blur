@@ -7,14 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D2967E282A72028300529624 /* app.c in Sources */ = {isa = PBXBuildFile; fileRef = D2967E272A72028300529624 /* app.c */; };
+		D2967E2B2A7202F500529624 /* main-mac.m in Sources */ = {isa = PBXBuildFile; fileRef = D2967E2A2A7202F500529624 /* main-mac.m */; };
+		D2967E2F2A72141700529624 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2967E2E2A72141600529624 /* graphics.cpp */; };
 		D2C7EFC42A6E2458005FCFF9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D2C7EFC32A6E2458005FCFF9 /* Assets.xcassets */; };
-		D2C7EFC92A6E2458005FCFF9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D2C7EFC82A6E2458005FCFF9 /* main.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D2967E262A72028300529624 /* app.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = app.h; path = ../../src/app/app.h; sourceTree = SOURCE_ROOT; };
+		D2967E272A72028300529624 /* app.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = app.c; path = ../../src/app/app.c; sourceTree = SOURCE_ROOT; };
+		D2967E2A2A7202F500529624 /* main-mac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "main-mac.m"; path = "../../../../src/main/main-mac.m"; sourceTree = "<group>"; };
+		D2967E2C2A72140700529624 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = ../../../../src/images/stb_image.h; sourceTree = "<group>"; };
+		D2967E2D2A72141600529624 /* graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = graphics.h; path = ../../../../src/graphics/graphics.h; sourceTree = "<group>"; };
+		D2967E2E2A72141600529624 /* graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graphics.cpp; path = ../../../../src/graphics/graphics.cpp; sourceTree = "<group>"; };
 		D2C7EFBA2A6E2458005FCFF9 /* blur.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = blur.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2C7EFC32A6E2458005FCFF9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D2C7EFC82A6E2458005FCFF9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D2C7EFCA2A6E2458005FCFF9 /* blur.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = blur.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -29,6 +36,40 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D2967E212A7201F000529624 /* app */ = {
+			isa = PBXGroup;
+			children = (
+				D2967E272A72028300529624 /* app.c */,
+				D2967E262A72028300529624 /* app.h */,
+			);
+			path = app;
+			sourceTree = "<group>";
+		};
+		D2967E222A7201FA00529624 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				D2967E2C2A72140700529624 /* stb_image.h */,
+			);
+			path = images;
+			sourceTree = "<group>";
+		};
+		D2967E232A72020100529624 /* graphics */ = {
+			isa = PBXGroup;
+			children = (
+				D2967E2E2A72141600529624 /* graphics.cpp */,
+				D2967E2D2A72141600529624 /* graphics.h */,
+			);
+			path = graphics;
+			sourceTree = "<group>";
+		};
+		D2967E292A7202E300529624 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				D2967E2A2A7202F500529624 /* main-mac.m */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
 		D2C7EFB12A6E2458005FCFF9 = {
 			isa = PBXGroup;
 			children = (
@@ -48,8 +89,11 @@
 		D2C7EFBC2A6E2458005FCFF9 /* blur */ = {
 			isa = PBXGroup;
 			children = (
+				D2967E292A7202E300529624 /* main */,
+				D2967E212A7201F000529624 /* app */,
+				D2967E232A72020100529624 /* graphics */,
+				D2967E222A7201FA00529624 /* images */,
 				D2C7EFC32A6E2458005FCFF9 /* Assets.xcassets */,
-				D2C7EFC82A6E2458005FCFF9 /* main.m */,
 				D2C7EFCA2A6E2458005FCFF9 /* blur.entitlements */,
 			);
 			path = blur;
@@ -123,7 +167,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D2C7EFC92A6E2458005FCFF9 /* main.m in Sources */,
+				D2967E2B2A7202F500529624 /* main-mac.m in Sources */,
+				D2967E282A72028300529624 /* app.c in Sources */,
+				D2967E2F2A72141700529624 /* graphics.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,6 +293,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = blur/blur.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -272,6 +319,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = blur/blur.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
