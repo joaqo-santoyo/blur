@@ -5,7 +5,7 @@
 
 ScreenInfo screenInfo;
 
-int appEntry(int argc, char** argv) {
+extern "C" int appEntry(int argc, char** argv) {
     if (argc <= 1) {
         printf("Usage: blur.exe <image_filename>");
         return 1;
@@ -24,16 +24,15 @@ int appEntry(int argc, char** argv) {
     return 1;
 }
 
-int appInit(void) {
-    
+extern "C" int appInit(void) {
+
     return 1;
 }
 
-int appRender(void) {
+extern "C" int appRender(void) {
     return 1;
 }
 
-int appDeinit(void) {
+extern "C" int appDeinit(void) {
     return 1;
 }
-
