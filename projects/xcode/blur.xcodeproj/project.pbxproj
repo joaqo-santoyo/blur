@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D208B2C92A74ABC40001F74C /* images.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D208B2C82A74ABC40001F74C /* images.cpp */; };
 		D2967E282A72028300529624 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2967E272A72028300529624 /* app.cpp */; };
 		D2967E2B2A7202F500529624 /* main-mac.m in Sources */ = {isa = PBXBuildFile; fileRef = D2967E2A2A7202F500529624 /* main-mac.m */; };
 		D2967E2F2A72141700529624 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2967E2E2A72141600529624 /* graphics.cpp */; };
@@ -14,6 +15,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D208B2C72A74ABC40001F74C /* images.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = images.h; path = ../../../../src/images/images.h; sourceTree = "<group>"; };
+		D208B2C82A74ABC40001F74C /* images.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = images.cpp; path = ../../../../src/images/images.cpp; sourceTree = "<group>"; };
 		D2967E262A72028300529624 /* app.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = app.h; path = ../../src/app/app.h; sourceTree = SOURCE_ROOT; };
 		D2967E272A72028300529624 /* app.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = ../../src/app/app.cpp; sourceTree = SOURCE_ROOT; };
 		D2967E2A2A7202F500529624 /* main-mac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "main-mac.m"; path = "../../../../src/main/main-mac.m"; sourceTree = "<group>"; };
@@ -48,6 +51,8 @@
 		D2967E222A7201FA00529624 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				D208B2C82A74ABC40001F74C /* images.cpp */,
+				D208B2C72A74ABC40001F74C /* images.h */,
 				D2967E2C2A72140700529624 /* stb_image.h */,
 			);
 			path = images;
@@ -168,6 +173,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D2967E2B2A7202F500529624 /* main-mac.m in Sources */,
+				D208B2C92A74ABC40001F74C /* images.cpp in Sources */,
 				D2967E282A72028300529624 /* app.cpp in Sources */,
 				D2967E2F2A72141700529624 /* graphics.cpp in Sources */,
 			);

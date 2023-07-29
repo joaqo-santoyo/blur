@@ -1,7 +1,6 @@
 #include "app.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "../images/stb_image.h"
 #include "../graphics/graphics.h"
+#include "../images/images.h"
 #include <stdio.h>
 
 
@@ -141,8 +140,7 @@ enum FrameName {
 WindowInfo windowInfo;
 struct App {
     Graphics graphics;
-    int channels;
-    unsigned char* pixels;
+    Image image;
     int texture;
     int textureUnit;
     int quad;
@@ -156,17 +154,11 @@ extern "C" int appEntry(int argc, char** argv) {
         printf("Usage: blur.exe <image_filename>");
         return 0;
     }
-    int imageWidth, imageHeight, imageChannels;
-    stbi_set_flip_vertically_on_load(1);
-    app.pixels = stbi_load(argv[1], &imageWidth, &imageHeight, &imageChannels, 0);
-    if (app.pixels == NULL) {
-        printf("Error loading the image\n");
-        exit(1);
+    if (!app.image.read(argv[1])) {
+        return 0;
     }
-    printf("Image: { %s, %d x %d x %d }\n", argv[1], imageWidth, imageHeight, imageChannels);
-    windowInfo.width = imageWidth;
-    windowInfo.height = imageHeight;
-    app.channels = imageChannels;
+    windowInfo.width = app.image.width;
+    windowInfo.height = app.image.height;
     return 1;
 }
 
@@ -248,7 +240,7 @@ extern "C" int appInit() {
          1,  1, 0, 1, 1,
     };
     app.quad = app.graphics.addMesh(quadData, 6 * 5 * sizeof(float));
-    app.texture = app.graphics.addTexture(windowInfo.width, windowInfo.height, app.channels, app.pixels);
+    app.texture = app.graphics.addTexture(app.image);
     app.textureUnit = 0; // Always the same texture unit
     app.radius = 5.0f;
 

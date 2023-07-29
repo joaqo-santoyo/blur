@@ -139,11 +139,11 @@ int Graphics::addMesh(float* data, int size) {
     return mesh;
 }
 
-int Graphics::addTexture(int width, int height, int channels, unsigned char* pixels) {
+int Graphics::addTexture(const Image& image) {
     int texture;
     glGenTextures(1, (GLuint*)&texture);
     int glTextureType;
-    switch (channels) {
+    switch (image.channels) {
     case 3:     glTextureType = GL_RGB;  break;
     case 4:     glTextureType = GL_RGBA; break;
     default:    glTextureType = GL_RGB;  break;
@@ -159,12 +159,12 @@ int Graphics::addTexture(int width, int height, int channels, unsigned char* pix
         GL_TEXTURE_2D,
         0,
         glTextureType,
-        width,
-        height,
+        image.width,
+        image.height,
         0,
         glTextureType,
         GL_UNSIGNED_BYTE,
-        pixels);
+        image.pixels);
     glGenerateMipmap(GL_TEXTURE_2D);
     return texture;
 }

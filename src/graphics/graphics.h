@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "../images/images.h"
 
 // Simple graphics engine
 // Only GL_FLOAT atttributes for now
@@ -69,7 +70,7 @@ public:
     ~Graphics();
     bool init(const GraphicsInfo& info);
     int addMesh(float* data, int size);
-    int addTexture(int width, int height, int channels, unsigned char* pixels);
+    int addTexture(const Image& image);
     int getFrameTexture(int frame);
     void addRenderPass(const RenderPass& pass);
     void render();
