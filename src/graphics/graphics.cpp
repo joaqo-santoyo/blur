@@ -13,7 +13,7 @@ static int compileShader(const std::vector<const char*>& defines, const char* so
     int s = glCreateShader(type);
     std::vector<const char*> sources = defines;
     sources.push_back(source);
-    glShaderSource(s, sources.size(), sources.data(), NULL);
+    glShaderSource(s, static_cast<int>(sources.size()), sources.data(), NULL);
     glCompileShader(s);
     GLint params;
     glGetShaderiv(s, GL_COMPILE_STATUS, &params);
