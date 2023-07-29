@@ -151,7 +151,7 @@ struct App {
 
 extern "C" int appEntry(int argc, char** argv) {
     if (argc <= 1) {
-        printf("Usage: blur.exe <image_filename>");
+        printf("Usage: blur <image_filename>");
         return 0;
     }
     if (!app.image.read(argv[1])) {
