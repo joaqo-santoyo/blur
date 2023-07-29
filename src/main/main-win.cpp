@@ -23,7 +23,9 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT msg, WPARAM wParam, LPARAM lP
 
 int main(int argc, char** argv) {
 
-    appEntry(argc, argv);
+    if (!appEntry(argc, argv)) {
+        return 1;
+    }
 
     // Create win32 window
     const wchar_t* windowName = L"Blur";

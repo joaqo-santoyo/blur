@@ -56,7 +56,9 @@
 @end
 
 int main(int argc, char* argv[]) {
-    appEntry(argc, argv);
+    if (!appEntry(argc, argv)) {
+        return 1;
+    }
     @autoreleasepool {
         AppDelegate* appDelegate = [[AppDelegate alloc] init];
         NSApplication* app = NSApplication.sharedApplication;
