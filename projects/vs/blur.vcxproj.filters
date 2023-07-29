@@ -13,16 +13,28 @@
     <Filter Include="src\graphics">
       <UniqueIdentifier>{a3d8783c-f174-45ee-ae09-cbaf0750b68e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\app">
+      <UniqueIdentifier>{5aa9c6aa-5947-4a9b-a577-e46d59eedef6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\main">
+      <UniqueIdentifier>{843f8b35-581d-457e-8357-f8ffebaab5e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\glad\glad.c">
       <Filter>src\glad</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\graphics.cpp">
       <Filter>src\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\images\images.cpp">
+      <Filter>src\images</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\main\main-win.cpp">
+      <Filter>src\main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\app\app.cpp">
+      <Filter>src\app</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +53,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\graphics\graphics.h">
       <Filter>src\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\images\images.h">
+      <Filter>src\images</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\app\app.h">
+      <Filter>src\app</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

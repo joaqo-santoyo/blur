@@ -1,6 +1,6 @@
 #include "graphics.h"
-#ifdef WIN32
-    #include "../glad/glad.h"
+#ifdef _WIN32
+    #include "glad/glad.h"
 #else
     #include <OpenGL/gl.h>
     #include <OpenGL/OpenGL.h>
