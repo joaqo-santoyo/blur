@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D2967E282A72028300529624 /* app.c in Sources */ = {isa = PBXBuildFile; fileRef = D2967E272A72028300529624 /* app.c */; };
+		D2967E282A72028300529624 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2967E272A72028300529624 /* app.cpp */; };
 		D2967E2B2A7202F500529624 /* main-mac.m in Sources */ = {isa = PBXBuildFile; fileRef = D2967E2A2A7202F500529624 /* main-mac.m */; };
 		D2967E2F2A72141700529624 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2967E2E2A72141600529624 /* graphics.cpp */; };
 		D2C7EFC42A6E2458005FCFF9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D2C7EFC32A6E2458005FCFF9 /* Assets.xcassets */; };
@@ -15,7 +15,7 @@
 
 /* Begin PBXFileReference section */
 		D2967E262A72028300529624 /* app.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = app.h; path = ../../src/app/app.h; sourceTree = SOURCE_ROOT; };
-		D2967E272A72028300529624 /* app.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = app.c; path = ../../src/app/app.c; sourceTree = SOURCE_ROOT; };
+		D2967E272A72028300529624 /* app.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = ../../src/app/app.cpp; sourceTree = SOURCE_ROOT; };
 		D2967E2A2A7202F500529624 /* main-mac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "main-mac.m"; path = "../../../../src/main/main-mac.m"; sourceTree = "<group>"; };
 		D2967E2C2A72140700529624 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = ../../../../src/images/stb_image.h; sourceTree = "<group>"; };
 		D2967E2D2A72141600529624 /* graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = graphics.h; path = ../../../../src/graphics/graphics.h; sourceTree = "<group>"; };
@@ -39,7 +39,7 @@
 		D2967E212A7201F000529624 /* app */ = {
 			isa = PBXGroup;
 			children = (
-				D2967E272A72028300529624 /* app.c */,
+				D2967E272A72028300529624 /* app.cpp */,
 				D2967E262A72028300529624 /* app.h */,
 			);
 			path = app;
@@ -168,7 +168,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D2967E2B2A7202F500529624 /* main-mac.m in Sources */,
-				D2967E282A72028300529624 /* app.c in Sources */,
+				D2967E282A72028300529624 /* app.cpp in Sources */,
 				D2967E2F2A72141700529624 /* graphics.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
