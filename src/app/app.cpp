@@ -139,32 +139,34 @@ enum FrameName {
 };
 
 WindowInfo windowInfo;
-Graphics graphics;
-int channels;
-unsigned char* pixels;
-int texture;
-int textureUnit;
-int quad;
-float radius;
-RenderPass pass0;
-RenderPass pass1;
+struct App {
+    Graphics graphics;
+    int channels;
+    unsigned char* pixels;
+    int texture;
+    int textureUnit;
+    int quad;
+    float radius;
+    RenderPass pass0;
+    RenderPass pass1;
+} app;
 
 extern "C" int appEntry(int argc, char** argv) {
     if (argc <= 1) {
         printf("Usage: blur.exe <image_filename>");
-        return 1;
+        return 0;
     }
     int imageWidth, imageHeight, imageChannels;
     stbi_set_flip_vertically_on_load(1);
-    pixels = stbi_load(argv[1], &imageWidth, &imageHeight, &imageChannels, 0);
-    if (pixels == NULL) {
+    app.pixels = stbi_load(argv[1], &imageWidth, &imageHeight, &imageChannels, 0);
+    if (app.pixels == NULL) {
         printf("Error loading the image\n");
         exit(1);
     }
     printf("Image: { %s, %d x %d x %d }\n", argv[1], imageWidth, imageHeight, imageChannels);
     windowInfo.width = imageWidth;
     windowInfo.height = imageHeight;
-    channels = imageChannels;
+    app.channels = imageChannels;
     return 1;
 }
 
@@ -233,7 +235,7 @@ extern "C" int appInit() {
     graphicsInfo.shaders[ShaderImage] = shaderImage;
     graphicsInfo.shaders[ShaderHoriBlur] = shaderHoriBlur;
     graphicsInfo.shaders[ShaderVertBlur] = shaderVertBlur;
-    if (!graphics.init(graphicsInfo)) {
+    if (!app.graphics.init(graphicsInfo)) {
         return 0;
     }
 
@@ -245,71 +247,71 @@ extern "C" int appInit() {
          1, -1, 0, 1, 0,
          1,  1, 0, 1, 1,
     };
-    quad = graphics.addMesh(quadData, 6 * 5 * sizeof(float));
-    texture = graphics.addTexture(windowInfo.width, windowInfo.height, channels, pixels);
-    textureUnit = 0; // Always the same texture unit
-    radius = 5.0f;
+    app.quad = app.graphics.addMesh(quadData, 6 * 5 * sizeof(float));
+    app.texture = app.graphics.addTexture(windowInfo.width, windowInfo.height, app.channels, app.pixels);
+    app.textureUnit = 0; // Always the same texture unit
+    app.radius = 5.0f;
 
     // Horizontal blur pass
-    pass0.frame = FrameA;
-    pass0.shaderId = ShaderHoriBlur;
-    pass0.textureId = texture;
-    pass0.textureUnit = textureUnit;
-    pass0.uniformsInt = {
-        { ShaderHoriBlurUniformNameTexture, textureUnit },
+    app.pass0.frame = FrameA;
+    app.pass0.shaderId = ShaderHoriBlur;
+    app.pass0.textureId = app.texture;
+    app.pass0.textureUnit = app.textureUnit;
+    app.pass0.uniformsInt = {
+        { ShaderHoriBlurUniformNameTexture, app.textureUnit },
         { ShaderHoriBlurUniformNameWidth,   windowInfo.width       },
         { ShaderHoriBlurUniformNameHeight,  windowInfo.height      },
     };
-    pass0.uniformsFloat = {
-        { ShaderHoriBlurUniformNameRadius,  radius }
+    app.pass0.uniformsFloat = {
+        { ShaderHoriBlurUniformNameRadius,  app.radius }
     };
-    pass0.attributes = {
-        { ShaderHoriBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
-        { ShaderHoriBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+    app.pass0.attributes = {
+        { ShaderHoriBlurAttributeNamePosition, app.quad, 3, false, 5 * sizeof(float), 0 },
+        { ShaderHoriBlurAttributeNameTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
-    pass0.vertexCount = 6;
+    app.pass0.vertexCount = 6;
 
     // Vertical blur pass
-    pass1.frame = -1;
-    pass1.shaderId = ShaderVertBlur;
-    pass1.textureId = graphics.getFrameTexture(FrameA);
-    pass1.textureUnit = textureUnit;
-    pass1.uniformsInt = {
-        { ShaderVertBlurUniformNameTexture, textureUnit },
+    app.pass1.frame = -1;
+    app.pass1.shaderId = ShaderVertBlur;
+    app.pass1.textureId = app.graphics.getFrameTexture(FrameA);
+    app.pass1.textureUnit = app.textureUnit;
+    app.pass1.uniformsInt = {
+        { ShaderVertBlurUniformNameTexture, app.textureUnit },
         { ShaderVertBlurUniformNameWidth,   windowInfo.width       },
         { ShaderVertBlurUniformNameHeight,  windowInfo.height      },
     };
-    pass1.uniformsFloat = {
-        { ShaderVertBlurUniformNameRadius,  radius }
+    app.pass1.uniformsFloat = {
+        { ShaderVertBlurUniformNameRadius,  app.radius }
     };
-    pass1.attributes = {
-        { ShaderVertBlurAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
-        { ShaderVertBlurAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+    app.pass1.attributes = {
+        { ShaderVertBlurAttributeNamePosition, app.quad, 3, false, 5 * sizeof(float), 0 },
+        { ShaderVertBlurAttributeNameTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
-    pass1.vertexCount = 6;
+    app.pass1.vertexCount = 6;
 
     // Uncomment to render the original image
-//    pass1.frame = -1;
-//    pass1.shaderId = ShaderImage;
-//    pass1.textureId = texture;
-//    pass1.textureUnit = textureUnit;
-//    pass1.uniformsInt = {
+//    app.pass1.frame = -1;
+//    app.pass1.shaderId = ShaderImage;
+//    app.pass1.textureId = texture;
+//    app.pass1.textureUnit = textureUnit;
+//    app.pass1.uniformsInt = {
 //        { ShaderImageUniformNameTexture, textureUnit },
 //    };
-//    pass1.uniformsFloat = { };
-//    pass1.attributes = {
+//    app.pass1.uniformsFloat = { };
+//    app.pass1.attributes = {
 //        { ShaderImageAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
 //        { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
 //    };
-//    pass1.vertexCount = 6;
+//    app.pass1.vertexCount = 6;
 
     return 1;
 }
 
 extern "C" int appRender(void) {
-    graphics.addRenderPass(pass0);
-    graphics.addRenderPass(pass1);
-    graphics.render();
+    app.graphics.addRenderPass(app.pass0);
+    app.graphics.addRenderPass(app.pass1);
+    app.graphics.render();
     return 1;
 }
 
