@@ -55,30 +55,34 @@ static int createProgram(int vertexShader, int fragmentShader, int* program) {
 
 
 
-Graphics::Graphics(const GraphicsInfo& info) {
+Graphics::Graphics(){
+    
+}
+ 
+bool Graphics::init(const GraphicsInfo& info) {
     width = info.width;
     height = info.height;
 
     // Shaders
     shaders.resize(info.shaders.size());
-    for (size_t i = 0; i < info.shaders.size(); i++) {
+    for (int i = 0; i < info.shaders.size(); i++) {
         const ShaderInfo& shaderInfo = info.shaders[i];
         int v, f, p;
         if (!compileShader(shaderInfo.defines, shaderInfo.vertexShader, &v, GL_VERTEX_SHADER)) {
             printf("Vertex shader compilation failed: %s", shaderInfo.name.c_str());
-            return;
+            return false;
         };
         if (!compileShader(shaderInfo.defines, shaderInfo.fragmentShader, &f, GL_FRAGMENT_SHADER)) {
             printf("Fragment shader compilation failed: %s", shaderInfo.name.c_str());
-            return;
+            return false;
         };
         if (!createProgram(v, f, &p)) {
             printf("Create program failed: %s", shaderInfo.name.c_str());
-            return;
+            return false;
         };
         shaders[i].program = p;
     }
-    for (size_t i = 0; i < shaders.size(); i++) {
+    for (int i = 0; i < shaders.size(); i++) {
         const ShaderInfo& shaderInfo = info.shaders[i];
         Shader& shader = shaders[i];
         shader.uniforms.resize(shaderInfo.uniforms.size());
@@ -94,7 +98,7 @@ Graphics::Graphics(const GraphicsInfo& info) {
 
     // Frames
     frames.resize(info.frames.size());
-    for (size_t i = 0; i < frames.size(); i++) {
+    for (int i = 0; i < frames.size(); i++) {
         const FrameInfo& frameInfo = info.frames[i];
         Frame& frame = frames[i];
         frame.width = frameInfo.width;
@@ -111,15 +115,14 @@ Graphics::Graphics(const GraphicsInfo& info) {
         GLint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
             printf("Framebuffer error! %d\n", status);
+            return false;
         }
-        else {
-            printf("FrameBuffer texture good\n");
-        }
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glViewport(0, 0, width, height);
     initialized = true;
+    return true;
 }
 
 Graphics::~Graphics() {

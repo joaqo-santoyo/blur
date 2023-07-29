@@ -64,14 +64,15 @@ struct Shader {
 class Graphics {
 public:
     bool initialized = false;
-    Graphics(const GraphicsInfo& info);
+    Graphics();
     ~Graphics();
+    bool init(const GraphicsInfo& info);
     int addMesh(float* data, int size);
     int addTexture(int width, int height, int channels, unsigned char* pixels);
     int getFrameTexture(int frame);
     void addRenderPass(const RenderPass& pass);
     void render();
-
+    
 private:
     int width;
     int height;
