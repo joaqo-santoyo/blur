@@ -42,6 +42,7 @@ struct RenderPass {
 };
 
 struct GraphicsInfo {
+    float windowScaleFactor;
     int width;
     int height;
     std::vector<FrameInfo> frames;
@@ -76,6 +77,8 @@ public:
 private:
     int width;
     int height;
+    int defaultFrameBufferWidth;
+    int defaultFrameBufferHeight;
     std::vector<RenderPass> renderPasses;
     std::vector<Shader> shaders;
     std::vector<Frame> frames;

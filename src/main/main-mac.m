@@ -28,7 +28,7 @@
 - (void) applicationDidFinishLaunching:(NSNotification*) notification {
     NSLog(@"AppDelegate::applicationDidFinishLaunching");
     
-    NSRect rect = NSMakeRect(0, 0, screenInfo.width, screenInfo.height);
+    NSRect rect = NSMakeRect(0, 0, windowInfo.width, windowInfo.height);
     
     NSOpenGLPixelFormatAttribute attributes[] = {
         NSOpenGLPFADoubleBuffer,
@@ -51,6 +51,7 @@
     [self.window cascadeTopLeftFromPoint:NSMakePoint(100,100)];
     [self.window.contentView addSubview:self.openGLView];
     [self.window makeKeyAndOrderFront:nil];
+    windowInfo.scaleFactor = self.window.screen.backingScaleFactor;
 }
 @end
 

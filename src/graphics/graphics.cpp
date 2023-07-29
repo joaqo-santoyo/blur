@@ -97,6 +97,8 @@ bool Graphics::init(const GraphicsInfo& info) {
     }
 
     // Frames
+    defaultFrameBufferWidth = width * info.windowScaleFactor;
+    defaultFrameBufferHeight = height * info.windowScaleFactor;
     frames.resize(info.frames.size());
     for (int i = 0; i < frames.size(); i++) {
         const FrameInfo& frameInfo = info.frames[i];
@@ -187,7 +189,7 @@ void Graphics::render() {
             glViewport(0, 0, frame.width, frame.height);
             glBindFramebuffer(GL_FRAMEBUFFER, frame.id);
         } else { // Binding to the default FrameBuffer
-            glViewport(0, 0, width, height);
+            glViewport(0, 0, defaultFrameBufferWidth, defaultFrameBufferHeight);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 

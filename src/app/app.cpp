@@ -138,7 +138,7 @@ enum FrameName {
     FrameNameCount
 };
 
-ScreenInfo screenInfo;
+WindowInfo windowInfo;
 Graphics graphics;
 int channels;
 unsigned char* pixels;
@@ -154,7 +154,6 @@ extern "C" int appEntry(int argc, char** argv) {
         printf("Usage: blur.exe <image_filename>");
         return 1;
     }
-    // Create the image first of all so we set the viewport accordingly
     int imageWidth, imageHeight, imageChannels;
     stbi_set_flip_vertically_on_load(1);
     pixels = stbi_load(argv[1], &imageWidth, &imageHeight, &imageChannels, 0);
@@ -163,8 +162,8 @@ extern "C" int appEntry(int argc, char** argv) {
         exit(1);
     }
     printf("Image: { %s, %d x %d x %d }\n", argv[1], imageWidth, imageHeight, imageChannels);
-    screenInfo.width = imageWidth;
-    screenInfo.height = imageHeight;
+    windowInfo.width = imageWidth;
+    windowInfo.height = imageHeight;
     channels = imageChannels;
     return 1;
 }
@@ -172,8 +171,8 @@ extern "C" int appEntry(int argc, char** argv) {
 extern "C" int appInit() {
     
     FrameInfo frameA;
-    frameA.width = screenInfo.width * 2;
-    frameA.height = screenInfo.height * 2;
+    frameA.width = windowInfo.width;
+    frameA.height = windowInfo.height;
 
     ShaderInfo shaderImage;
     shaderImage.name = "ShaderImage";
@@ -225,8 +224,9 @@ extern "C" int appInit() {
     shaderVertBlur.attributes[ShaderVertBlurAttributeNameTexture] = "aTexture";
 
     GraphicsInfo graphicsInfo;
-    graphicsInfo.width = screenInfo.width;
-    graphicsInfo.height = screenInfo.height;
+    graphicsInfo.windowScaleFactor = windowInfo.scaleFactor;
+    graphicsInfo.width = windowInfo.width;
+    graphicsInfo.height = windowInfo.height;
     graphicsInfo.frames.resize(FrameNameCount);
     graphicsInfo.frames[FrameA] = frameA;
     graphicsInfo.shaders.resize(ShaderNameCount);
@@ -246,7 +246,7 @@ extern "C" int appInit() {
          1,  1, 0, 1, 1,
     };
     quad = graphics.addMesh(quadData, 6 * 5 * sizeof(float));
-    texture = graphics.addTexture(screenInfo.width, screenInfo.height, channels, pixels);
+    texture = graphics.addTexture(windowInfo.width, windowInfo.height, channels, pixels);
     textureUnit = 0; // Always the same texture unit
     radius = 5.0f;
 
@@ -257,8 +257,8 @@ extern "C" int appInit() {
     pass0.textureUnit = textureUnit;
     pass0.uniformsInt = {
         { ShaderHoriBlurUniformNameTexture, textureUnit },
-        { ShaderHoriBlurUniformNameWidth,   screenInfo.width       },
-        { ShaderHoriBlurUniformNameHeight,  screenInfo.height      },
+        { ShaderHoriBlurUniformNameWidth,   windowInfo.width       },
+        { ShaderHoriBlurUniformNameHeight,  windowInfo.height      },
     };
     pass0.uniformsFloat = {
         { ShaderHoriBlurUniformNameRadius,  radius }
@@ -276,8 +276,8 @@ extern "C" int appInit() {
     pass1.textureUnit = textureUnit;
     pass1.uniformsInt = {
         { ShaderVertBlurUniformNameTexture, textureUnit },
-        { ShaderVertBlurUniformNameWidth,   screenInfo.width       },
-        { ShaderVertBlurUniformNameHeight,  screenInfo.height      },
+        { ShaderVertBlurUniformNameWidth,   windowInfo.width       },
+        { ShaderVertBlurUniformNameHeight,  windowInfo.height      },
     };
     pass1.uniformsFloat = {
         { ShaderVertBlurUniformNameRadius,  radius }
