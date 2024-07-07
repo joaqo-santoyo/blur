@@ -5,7 +5,12 @@
     #include <OpenGL/gl.h>
     #include <OpenGL/OpenGL.h>
 #endif
+#include <stdexcept>
 
+
+ShaH  invShaH = { -1 };
+UniH  invUniH = { -1 };
+AttrH invAttrH = { -1 };
 
 
 
@@ -65,11 +70,6 @@ Graphics::Graphics(){
 Graphics::~Graphics() {
     delete state;
 }
-
-#include <stdexcept>
-ShaH  invShaH  = { -1 };
-UniH  invUniH  = { -1 };
-AttrH invAttrH = { -1 };
 
 
 ShaH Graphics::addShader(
