@@ -87,10 +87,6 @@ void main() {
 )";
 
 
-enum FrameName {
-    FrameA,
-    FrameNameCount
-};
 
 WindowInfo windowInfo;
 struct App {
@@ -103,6 +99,8 @@ struct App {
     RenderPass pass0;
     RenderPass pass1;
 
+    FraH  frameA;
+    
     ShaH  shaderImage;
     UniH  shaderImage_uTexture;
     AttrH shaderImage_aPosition;
@@ -141,9 +139,7 @@ extern "C" int appEntry(int argc, char** argv) {
 
 extern "C" int appInit() {
     
-    FrameInfo frameA;
-    frameA.width = windowInfo.width;
-    frameA.height = windowInfo.height;
+    app.frameA = app.graphics.addFrame(windowInfo.width, windowInfo.height);
 
     app.shaderImage = app.graphics.addShader(
         "ShaderImage",
@@ -208,8 +204,6 @@ extern "C" int appInit() {
     graphicsInfo.windowScaleFactor = windowInfo.scaleFactor;
     graphicsInfo.width = windowInfo.width;
     graphicsInfo.height = windowInfo.height;
-    graphicsInfo.frames.resize(FrameNameCount);
-    graphicsInfo.frames[FrameA] = frameA;
     if (!app.graphics.init(graphicsInfo)) {
         return 0;
     }
@@ -228,8 +222,8 @@ extern "C" int appInit() {
     app.radius = 5.0f;
 
     // Horizontal blur pass
-    app.pass0.frame = FrameA;
-    app.pass0.shaderH = app.shaderHoriBlur;
+    app.pass0.frame = app.frameA;
+    app.pass0.shader = app.shaderHoriBlur;
     app.pass0.textureId = app.texture;
     app.pass0.textureUnit = app.textureUnit;
     app.pass0.uniformsInt = {
@@ -247,9 +241,9 @@ extern "C" int appInit() {
     app.pass0.vertexCount = 6;
 
     // Vertical blur pass
-    app.pass1.frame = -1;
-    app.pass1.shaderH = app.shaderVertBlur;
-    app.pass1.textureId = app.graphics.getFrameTexture(FrameA);
+    app.pass1.frame = invFraH;
+    app.pass1.shader = app.shaderVertBlur;
+    app.pass1.textureId = app.graphics.getFrameTexture(app.frameA);
     app.pass1.textureUnit = app.textureUnit;
     app.pass1.uniformsInt = {
         { app.shaderVertBlur_uTexture, app.textureUnit },
@@ -266,8 +260,8 @@ extern "C" int appInit() {
     app.pass1.vertexCount = 6;
 
     // Uncomment to render the original image
-//    app.pass1.frame = -1;
-//    app.pass1.shaderH = app.shaderImage;
+//    app.pass1.frame = invFraH;
+//    app.pass1.shader = app.shaderImage;
 //    app.pass1.textureId = app.texture;
 //    app.pass1.textureUnit = app.textureUnit;
 //    app.pass1.uniformsInt = {

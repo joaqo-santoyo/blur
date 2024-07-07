@@ -8,8 +8,9 @@
 #include <stdexcept>
 
 
-ShaH  invShaH = { -1 };
-UniH  invUniH = { -1 };
+FraH  invFraH  = { -1 };
+ShaH  invShaH  = { -1 };
+UniH  invUniH  = { -1 };
 AttrH invAttrH = { -1 };
 
 
@@ -60,6 +61,7 @@ static int createProgram(int vertexShader, int fragmentShader, int* program) {
 class GraphicsState{
 public:
     std::vector<Shader> shaders;
+    std::vector<Frame>  frames;
 };
 
 
@@ -71,6 +73,30 @@ Graphics::~Graphics() {
     delete state;
 }
 
+FraH Graphics::addFrame(const int width, const int height) {
+    Frame frame;
+    frame.width = width;
+    frame.height = height;
+    glGenFramebuffers(1, &frame.id);
+    glBindFramebuffer(GL_FRAMEBUFFER, frame.id);
+    printf("FrameBuffer: %d %d %d\n", frame.id, frame.width, frame.height);
+    glGenTextures(1, &frame.texture);
+    glBindTexture(GL_TEXTURE_2D, frame.texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame.width, frame.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frame.texture, 0);
+    GLint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        printf("Framebuffer error! %d\n", status);
+        return invFraH;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    int idx = static_cast<int>(state->frames.size());
+    state->frames.push_back(std::move(frame));
+    return FraH { idx };
+}
 
 ShaH Graphics::addShader(
     const std::string& name,
@@ -118,33 +144,8 @@ ShaH Graphics::addShader(
 bool Graphics::init(const GraphicsInfo& info) {
     width = info.width;
     height = info.height;
-
-    // Frames
     defaultFrameBufferWidth = width * info.windowScaleFactor;
     defaultFrameBufferHeight = height * info.windowScaleFactor;
-    frames.resize(info.frames.size());
-    for (int i = 0; i < frames.size(); i++) {
-        const FrameInfo& frameInfo = info.frames[i];
-        Frame& frame = frames[i];
-        frame.width = frameInfo.width;
-        frame.height = frameInfo.height;
-        glGenFramebuffers(1, &frame.id);
-        glBindFramebuffer(GL_FRAMEBUFFER, frame.id);
-        printf("FrameBuffer: %d %d %d\n", frame.id, frame.width, frame.height);
-        glGenTextures(1, &frame.texture);
-        glBindTexture(GL_TEXTURE_2D, frame.texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame.width, frame.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frame.texture, 0);
-        GLint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-        if (status != GL_FRAMEBUFFER_COMPLETE) {
-            printf("Framebuffer error! %d\n", status);
-            return false;
-        }
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     glViewport(0, 0, width, height);
     initialized = true;
     return true;
@@ -189,8 +190,8 @@ int Graphics::addTexture(const Image& image) {
     return texture;
 }
 
-int Graphics::getFrameTexture(int frame) {
-    return frames[frame].texture;
+int Graphics::getFrameTexture(FraH frame) {
+    return state->frames[frame.idx].texture;
 }
 
 void Graphics::addRenderPass(const RenderPass& pass) {
@@ -201,11 +202,11 @@ void Graphics::render() {
     glClearColor(.1f, .1f, .1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for (const RenderPass& renderPass : renderPasses) {
-        Shader& shader = state->shaders[renderPass.shaderH.idx];
+        Shader& shader = state->shaders[renderPass.shader.idx];
         glUseProgram(shader.program);
 
-        if (renderPass.frame >= 0) {
-            const Frame& frame = frames[renderPass.frame];
+        if (renderPass.frame.idx != -1) {
+            const Frame& frame = state->frames[renderPass.frame.idx];
             glViewport(0, 0, frame.width, frame.height);
             glBindFramebuffer(GL_FRAMEBUFFER, frame.id);
         } else { // Binding to the default FrameBuffer

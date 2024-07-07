@@ -15,14 +15,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D208B2C72A74ABC40001F74C /* images.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = images.h; path = ../../../../src/images/images.h; sourceTree = "<group>"; };
-		D208B2C82A74ABC40001F74C /* images.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = images.cpp; path = ../../../../src/images/images.cpp; sourceTree = "<group>"; };
+		D208B2C72A74ABC40001F74C /* images.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = images.h; sourceTree = "<group>"; };
+		D208B2C82A74ABC40001F74C /* images.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = images.cpp; path = ../../src/images/images.cpp; sourceTree = "<group>"; };
 		D2967E262A72028300529624 /* app.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = app.h; path = ../../src/app/app.h; sourceTree = SOURCE_ROOT; };
 		D2967E272A72028300529624 /* app.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = ../../src/app/app.cpp; sourceTree = SOURCE_ROOT; };
-		D2967E2A2A7202F500529624 /* main-mac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "main-mac.m"; path = "../../../../src/main/main-mac.m"; sourceTree = "<group>"; };
-		D2967E2C2A72140700529624 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = ../../../../src/images/stb_image.h; sourceTree = "<group>"; };
-		D2967E2D2A72141600529624 /* graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = graphics.h; path = ../../../../src/graphics/graphics.h; sourceTree = "<group>"; };
-		D2967E2E2A72141600529624 /* graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graphics.cpp; path = ../../../../src/graphics/graphics.cpp; sourceTree = "<group>"; };
+		D2967E2A2A7202F500529624 /* main-mac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "main-mac.m"; sourceTree = "<group>"; };
+		D2967E2C2A72140700529624 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		D2967E2D2A72141600529624 /* graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = graphics.h; sourceTree = "<group>"; };
+		D2967E2E2A72141600529624 /* graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = graphics.cpp; sourceTree = "<group>"; };
 		D2C7EFBA2A6E2458005FCFF9 /* blur.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = blur.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2C7EFC32A6E2458005FCFF9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D2C7EFCA2A6E2458005FCFF9 /* blur.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = blur.entitlements; sourceTree = "<group>"; };
@@ -45,7 +45,8 @@
 				D2967E272A72028300529624 /* app.cpp */,
 				D2967E262A72028300529624 /* app.h */,
 			);
-			path = app;
+			name = app;
+			path = ../../../src/app;
 			sourceTree = "<group>";
 		};
 		D2967E222A7201FA00529624 /* images */ = {
@@ -55,7 +56,8 @@
 				D208B2C72A74ABC40001F74C /* images.h */,
 				D2967E2C2A72140700529624 /* stb_image.h */,
 			);
-			path = images;
+			name = images;
+			path = ../../../src/images;
 			sourceTree = "<group>";
 		};
 		D2967E232A72020100529624 /* graphics */ = {
@@ -64,7 +66,8 @@
 				D2967E2E2A72141600529624 /* graphics.cpp */,
 				D2967E2D2A72141600529624 /* graphics.h */,
 			);
-			path = graphics;
+			name = graphics;
+			path = ../../../src/graphics;
 			sourceTree = "<group>";
 		};
 		D2967E292A7202E300529624 /* main */ = {
@@ -72,7 +75,8 @@
 			children = (
 				D2967E2A2A7202F500529624 /* main-mac.m */,
 			);
-			path = main;
+			name = main;
+			path = ../../../src/main;
 			sourceTree = "<group>";
 		};
 		D2C7EFB12A6E2458005FCFF9 = {
