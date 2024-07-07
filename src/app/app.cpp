@@ -86,51 +86,6 @@ void main() {
 }
 )";
 
-enum ShaderName {
-    ShaderImage,
-    ShaderHoriBlur,
-    ShaderVertBlur,
-    ShaderNameCount
-};
-
-enum ShaderImageUniformName {
-    ShaderImageUniformNameTexture,
-    ShaderImageUniformNameCount
-};
-
-enum ShaderImageAttributeName {
-    ShaderImageAttributeNamePosition,
-    ShaderImageAttributeNameTexture,
-    ShaderImageAttributeNameCount
-};
-
-enum ShaderHoriBlurUniformName {
-    ShaderHoriBlurUniformNameTexture,
-    ShaderHoriBlurUniformNameWidth,
-    ShaderHoriBlurUniformNameHeight,
-    ShaderHoriBlurUniformNameRadius,
-    ShaderHoriBlurUniformNameCount
-};
-
-enum ShaderHoriBlurAttributeName {
-    ShaderHoriBlurAttributeNamePosition,
-    ShaderHoriBlurAttributeNameTexture,
-    ShaderHoriBlurAttributeNameCount
-};
-
-enum ShaderVertBlurUniformName {
-    ShaderVertBlurUniformNameTexture,
-    ShaderVertBlurUniformNameWidth,
-    ShaderVertBlurUniformNameHeight,
-    ShaderVertBlurUniformNameRadius,
-    ShaderVertBlurUniformNameCount
-};
-
-enum ShaderVertBlurAttributeName {
-    ShaderVertBlurAttributeNamePosition,
-    ShaderVertBlurAttributeNameTexture,
-    ShaderVertBlurAttributeNameCount
-};
 
 enum FrameName {
     FrameA,
@@ -147,6 +102,28 @@ struct App {
     float radius;
     RenderPass pass0;
     RenderPass pass1;
+
+    ShaH  shaderImage;
+    UniH  shaderImage_uTexture;
+    AttrH shaderImage_aPosition;
+    AttrH shaderImage_aTexture;
+
+    ShaH  shaderHoriBlur;
+    UniH  shaderHoriBlur_uTexture;
+    UniH  shaderHoriBlur_uWidth;
+    UniH  shaderHoriBlur_uHeight;
+    UniH  shaderHoriBlur_uRadius;
+    AttrH shaderHoriBlur_aPosition;
+    AttrH shaderHoriBlur_aTexture;
+
+    ShaH  shaderVertBlur;
+    UniH  shaderVertBlur_uTexture;
+    UniH  shaderVertBlur_uWidth;
+    UniH  shaderVertBlur_uHeight;
+    UniH  shaderVertBlur_uRadius;
+    AttrH shaderVertBlur_aPosition;
+    AttrH shaderVertBlur_aTexture;
+
 } app;
 
 extern "C" int appEntry(int argc, char** argv) {
@@ -168,54 +145,64 @@ extern "C" int appInit() {
     frameA.width = windowInfo.width;
     frameA.height = windowInfo.height;
 
-    ShaderInfo shaderImage;
-    shaderImage.name = "ShaderImage";
-    shaderImage.defines = {
-        "#version 120\n",
-    };
-    shaderImage.vertexShader = imageVertexSource;
-    shaderImage.fragmentShader = imageFragmentSource;
-    shaderImage.uniforms.resize(ShaderImageUniformNameCount);
-    shaderImage.uniforms[ShaderImageUniformNameTexture] = "uTexture";
-    shaderImage.attributes.resize(ShaderImageAttributeNameCount);
-    shaderImage.attributes[ShaderImageAttributeNamePosition] = "aPosition";
-    shaderImage.attributes[ShaderImageAttributeNameTexture] = "aTexture";
+    app.shaderImage = app.graphics.addShader(
+        "ShaderImage",
+        imageVertexSource,
+        imageFragmentSource,
+        {
+            "#version 120\n",
+        },
+        {
+            { app.shaderImage_uTexture, "uTexture" },
+        },
+        {
+            { app.shaderImage_aPosition, "aPosition" },
+            { app.shaderImage_aTexture,  "aTexture"  },
+        }
+    );
 
-    ShaderInfo shaderHoriBlur;
-    shaderHoriBlur.name = "HorizontalBlur";
-    shaderHoriBlur.defines = {
-        "#version 120\n",
-        "#define HORIZONTAL\n",
-        "#define KERNEL 11\n",
-    };
-    shaderHoriBlur.vertexShader = blurVertexSource;
-    shaderHoriBlur.fragmentShader = blurFragmentSource;
-    shaderHoriBlur.uniforms.resize(ShaderHoriBlurUniformNameCount);
-    shaderHoriBlur.uniforms[ShaderHoriBlurUniformNameTexture] = "uTexture";
-    shaderHoriBlur.uniforms[ShaderHoriBlurUniformNameWidth] = "uWidth";
-    shaderHoriBlur.uniforms[ShaderHoriBlurUniformNameHeight] = "uHeight";
-    shaderHoriBlur.uniforms[ShaderHoriBlurUniformNameRadius] = "uRadius";
-    shaderHoriBlur.attributes.resize(ShaderHoriBlurAttributeNameCount);
-    shaderHoriBlur.attributes[ShaderHoriBlurAttributeNamePosition] = "aPosition";
-    shaderHoriBlur.attributes[ShaderHoriBlurAttributeNameTexture] = "aTexture";
+    app.shaderHoriBlur = app.graphics.addShader(
+        "HorizontalBlur",
+        blurVertexSource,
+        blurFragmentSource,
+        {
+            "#version 120\n",
+            "#define HORIZONTAL\n",
+            "#define KERNEL 11\n",
+        },
+        {
+            { app.shaderHoriBlur_uTexture, "uTexture" },
+            { app.shaderHoriBlur_uWidth,   "uWidth" },
+            { app.shaderHoriBlur_uHeight,  "uHeight" },
+            { app.shaderHoriBlur_uRadius,  "uRadius" },
+        },
+        {
+            { app.shaderHoriBlur_aPosition, "aPosition" },
+            { app.shaderHoriBlur_aTexture,  "aTexture"  },
+        }
+    );
 
-    ShaderInfo shaderVertBlur;
-    shaderVertBlur.name = "VerticalBlur";
-    shaderVertBlur.defines = {
-        "#version 120\n",
-        "#define VERTICAL\n",
-        "#define KERNEL 11\n",
-    };
-    shaderVertBlur.vertexShader = blurVertexSource;
-    shaderVertBlur.fragmentShader = blurFragmentSource;
-    shaderVertBlur.uniforms.resize(ShaderVertBlurUniformNameCount);
-    shaderVertBlur.uniforms[ShaderVertBlurUniformNameTexture] = "uTexture";
-    shaderVertBlur.uniforms[ShaderVertBlurUniformNameWidth] = "uWidth";
-    shaderVertBlur.uniforms[ShaderVertBlurUniformNameHeight] = "uHeight";
-    shaderVertBlur.uniforms[ShaderVertBlurUniformNameRadius] = "uRadius";
-    shaderVertBlur.attributes.resize(ShaderVertBlurAttributeNameCount);
-    shaderVertBlur.attributes[ShaderVertBlurAttributeNamePosition] = "aPosition";
-    shaderVertBlur.attributes[ShaderVertBlurAttributeNameTexture] = "aTexture";
+    app.shaderVertBlur = app.graphics.addShader(
+        "VerticalBlur",
+        blurVertexSource,
+        blurFragmentSource,
+        {
+            "#version 120\n",
+            "#define VERTICAL\n",
+            "#define KERNEL 11\n",
+        },
+        {
+            { app.shaderVertBlur_uTexture, "uTexture" },
+            { app.shaderVertBlur_uWidth,   "uWidth" },
+            { app.shaderVertBlur_uHeight,  "uHeight" },
+            { app.shaderVertBlur_uRadius,  "uRadius" },
+        },
+        {
+            { app.shaderVertBlur_aPosition, "aPosition" },
+            { app.shaderVertBlur_aTexture,  "aTexture"  },
+        }
+    );
+
 
     GraphicsInfo graphicsInfo;
     graphicsInfo.windowScaleFactor = windowInfo.scaleFactor;
@@ -223,10 +210,6 @@ extern "C" int appInit() {
     graphicsInfo.height = windowInfo.height;
     graphicsInfo.frames.resize(FrameNameCount);
     graphicsInfo.frames[FrameA] = frameA;
-    graphicsInfo.shaders.resize(ShaderNameCount);
-    graphicsInfo.shaders[ShaderImage] = shaderImage;
-    graphicsInfo.shaders[ShaderHoriBlur] = shaderHoriBlur;
-    graphicsInfo.shaders[ShaderVertBlur] = shaderVertBlur;
     if (!app.graphics.init(graphicsInfo)) {
         return 0;
     }
@@ -246,54 +229,54 @@ extern "C" int appInit() {
 
     // Horizontal blur pass
     app.pass0.frame = FrameA;
-    app.pass0.shaderId = ShaderHoriBlur;
+    app.pass0.shaderH = app.shaderHoriBlur;
     app.pass0.textureId = app.texture;
     app.pass0.textureUnit = app.textureUnit;
     app.pass0.uniformsInt = {
-        { ShaderHoriBlurUniformNameTexture, app.textureUnit },
-        { ShaderHoriBlurUniformNameWidth,   windowInfo.width       },
-        { ShaderHoriBlurUniformNameHeight,  windowInfo.height      },
+        { app.shaderHoriBlur_uTexture, app.textureUnit },
+        { app.shaderHoriBlur_uWidth,   windowInfo.width       },
+        { app.shaderHoriBlur_uHeight,  windowInfo.height      },
     };
     app.pass0.uniformsFloat = {
-        { ShaderHoriBlurUniformNameRadius,  app.radius }
+        { app.shaderHoriBlur_uRadius,  app.radius }
     };
     app.pass0.attributes = {
-        { ShaderHoriBlurAttributeNamePosition, app.quad, 3, false, 5 * sizeof(float), 0 },
-        { ShaderHoriBlurAttributeNameTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+        { app.shaderHoriBlur_aPosition, app.quad, 3, false, 5 * sizeof(float), 0 },
+        { app.shaderHoriBlur_aTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
     app.pass0.vertexCount = 6;
 
     // Vertical blur pass
     app.pass1.frame = -1;
-    app.pass1.shaderId = ShaderVertBlur;
+    app.pass1.shaderH = app.shaderVertBlur;
     app.pass1.textureId = app.graphics.getFrameTexture(FrameA);
     app.pass1.textureUnit = app.textureUnit;
     app.pass1.uniformsInt = {
-        { ShaderVertBlurUniformNameTexture, app.textureUnit },
-        { ShaderVertBlurUniformNameWidth,   windowInfo.width       },
-        { ShaderVertBlurUniformNameHeight,  windowInfo.height      },
+        { app.shaderVertBlur_uTexture, app.textureUnit },
+        { app.shaderVertBlur_uWidth,   windowInfo.width       },
+        { app.shaderVertBlur_uHeight,  windowInfo.height      },
     };
     app.pass1.uniformsFloat = {
-        { ShaderVertBlurUniformNameRadius,  app.radius }
+        { app.shaderVertBlur_uRadius,  app.radius }
     };
     app.pass1.attributes = {
-        { ShaderVertBlurAttributeNamePosition, app.quad, 3, false, 5 * sizeof(float), 0 },
-        { ShaderVertBlurAttributeNameTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+        { app.shaderVertBlur_aPosition, app.quad, 3, false, 5 * sizeof(float), 0 },
+        { app.shaderVertBlur_aTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
     };
     app.pass1.vertexCount = 6;
 
     // Uncomment to render the original image
 //    app.pass1.frame = -1;
-//    app.pass1.shaderId = ShaderImage;
-//    app.pass1.textureId = texture;
-//    app.pass1.textureUnit = textureUnit;
+//    app.pass1.shaderH = app.shaderImage;
+//    app.pass1.textureId = app.texture;
+//    app.pass1.textureUnit = app.textureUnit;
 //    app.pass1.uniformsInt = {
-//        { ShaderImageUniformNameTexture, textureUnit },
+//        { app.shaderImage_uTexture, app.textureUnit },
 //    };
 //    app.pass1.uniformsFloat = { };
 //    app.pass1.attributes = {
-//        { ShaderImageAttributeNamePosition, quad, 3, false, 5 * sizeof(float), 0 },
-//        { ShaderImageAttributeNameTexture,  quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+//        { app.shaderImage_aPosition, app.quad, 3, false, 5 * sizeof(float), 0 },
+//        { app.shaderImage_aTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
 //    };
 //    app.pass1.vertexCount = 6;
 

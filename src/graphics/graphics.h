@@ -8,6 +8,15 @@
 // Only int or float uniforms for now
 // Only a single texture and texture unit for now
 
+
+struct ShaH { int idx; };
+struct UniH { int idx; };
+struct AttrH { int idx; };
+
+extern ShaH  invShaH;
+extern UniH  invUniH;
+extern AttrH invAttrH;
+
 struct FrameInfo {
     int width;
     int height;
@@ -23,7 +32,7 @@ struct ShaderInfo {
 };
 
 struct AttributeInfo {
-    int attr;
+    AttrH attrH;
     int bufferId;
     int count;
     bool normalized;
@@ -33,11 +42,11 @@ struct AttributeInfo {
 
 struct RenderPass {
     int frame;
-    int shaderId;
+    ShaH shaderH;
     int textureId;
     int textureUnit;
-    std::vector<std::pair<int, int>> uniformsInt;
-    std::vector<std::pair<int, float>> uniformsFloat;
+    std::vector<std::pair<UniH, int>> uniformsInt;
+    std::vector<std::pair<UniH, float>> uniformsFloat;
     std::vector<AttributeInfo> attributes;
     int vertexCount;
 };
@@ -63,12 +72,24 @@ struct Shader {
     std::vector<int> attributes;
 };
 
+class GraphicsState;
+
 class Graphics {
 public:
     bool initialized = false;
     Graphics();
     ~Graphics();
     bool init(const GraphicsInfo& info);
+
+    ShaH addShader(
+        const std::string& name,
+        const char* vertexShader,
+        const char* fragmentShader,
+        const std::vector<const char*>& defines,
+        const std::vector<std::pair<UniH&,  const char*>>& uniInfos,
+        const std::vector<std::pair<AttrH&, const char*>>& attrInfos
+    );
+
     int addMesh(float* data, int size);
     int addTexture(const Image& image);
     int getFrameTexture(int frame);
@@ -76,6 +97,7 @@ public:
     void render();
     
 private:
+    GraphicsState* state;
     int width;
     int height;
     int defaultFrameBufferWidth;

@@ -52,49 +52,72 @@ static int createProgram(int vertexShader, int fragmentShader, int* program) {
     return 1;
 }
 
-
+class GraphicsState{
+public:
+    std::vector<Shader> shaders;
+};
 
 
 Graphics::Graphics(){
-    
+    state = new GraphicsState();
 }
+
+Graphics::~Graphics() {
+    delete state;
+}
+
+#include <stdexcept>
+ShaH  invShaH  = { -1 };
+UniH  invUniH  = { -1 };
+AttrH invAttrH = { -1 };
+
+
+ShaH Graphics::addShader(
+    const std::string& name,
+    const char* vertexShader,
+    const char* fragmentShader,
+    const std::vector<const char*>& defines,
+    const std::vector<std::pair<UniH&,  const char*>>& uniformPairings,
+    const std::vector<std::pair<AttrH&, const char*>>& attributePairings
+) {
+    Shader shader;
+    int v, f, p;
+    if (!compileShader(defines, vertexShader, &v, GL_VERTEX_SHADER)) {
+        //printf("Vertex shader compilation failed: %s", name.c_str());
+        throw std::runtime_error("Vertex shader compilation failed " + name);
+    };
+    if (!compileShader(defines, fragmentShader, &f, GL_FRAGMENT_SHADER)) {
+        //printf("Fragment shader compilation failed: %s", name.c_str());
+        throw std::runtime_error("Fragment shader compilation failed " + name);
+    };
+    if (!createProgram(v, f, &p)) {
+        //printf("Create program failed: %s", name.c_str());
+        throw std::runtime_error("Create shader program failed " + name);
+    };
+    shader.program = p;
+    glUseProgram(shader.program);
+    shader.uniforms.resize(uniformPairings.size());
+    shader.attributes.resize(attributePairings.size());
+    for (int i = 0; i < uniformPairings.size(); i++) {
+        const auto& pairing = uniformPairings[i];
+        shader.uniforms[i] = glGetUniformLocation(shader.program, pairing.second);
+        pairing.first.idx = i;
+    }
+    for (int i = 0; i < attributePairings.size(); i++) {
+        const auto& pairing = attributePairings[i];
+        shader.attributes[i] = glGetAttribLocation(shader.program, pairing.second);
+        pairing.first.idx = i;
+    }
+    int idx = static_cast<int>(state->shaders.size());
+    state->shaders.push_back(std::move(shader));
+    return ShaH{ idx };
+}
+
+
  
 bool Graphics::init(const GraphicsInfo& info) {
     width = info.width;
     height = info.height;
-
-    // Shaders
-    shaders.resize(info.shaders.size());
-    for (int i = 0; i < info.shaders.size(); i++) {
-        const ShaderInfo& shaderInfo = info.shaders[i];
-        int v, f, p;
-        if (!compileShader(shaderInfo.defines, shaderInfo.vertexShader, &v, GL_VERTEX_SHADER)) {
-            printf("Vertex shader compilation failed: %s", shaderInfo.name.c_str());
-            return false;
-        };
-        if (!compileShader(shaderInfo.defines, shaderInfo.fragmentShader, &f, GL_FRAGMENT_SHADER)) {
-            printf("Fragment shader compilation failed: %s", shaderInfo.name.c_str());
-            return false;
-        };
-        if (!createProgram(v, f, &p)) {
-            printf("Create program failed: %s", shaderInfo.name.c_str());
-            return false;
-        };
-        shaders[i].program = p;
-    }
-    for (int i = 0; i < shaders.size(); i++) {
-        const ShaderInfo& shaderInfo = info.shaders[i];
-        Shader& shader = shaders[i];
-        shader.uniforms.resize(shaderInfo.uniforms.size());
-        shader.attributes.resize(shaderInfo.attributes.size());
-        glUseProgram(shader.program);
-        for (int j = 0; j < shader.uniforms.size(); j++) {
-            shader.uniforms[j] = glGetUniformLocation(shader.program, shaderInfo.uniforms[j]);
-        }
-        for (int j = 0; j < shader.attributes.size(); j++) {
-            shader.attributes[j] = glGetAttribLocation(shader.program, shaderInfo.attributes[j]);
-        }
-    }
 
     // Frames
     defaultFrameBufferWidth = width * info.windowScaleFactor;
@@ -127,9 +150,6 @@ bool Graphics::init(const GraphicsInfo& info) {
     return true;
 }
 
-Graphics::~Graphics() {
-
-}
 
 int Graphics::addMesh(float* data, int size) {
     int mesh;
@@ -181,7 +201,7 @@ void Graphics::render() {
     glClearColor(.1f, .1f, .1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for (const RenderPass& renderPass : renderPasses) {
-        Shader& shader = shaders[renderPass.shaderId];
+        Shader& shader = state->shaders[renderPass.shaderH.idx];
         glUseProgram(shader.program);
 
         if (renderPass.frame >= 0) {
@@ -196,20 +216,20 @@ void Graphics::render() {
         glActiveTexture(GL_TEXTURE0 + renderPass.textureUnit);
         glBindTexture(GL_TEXTURE_2D, renderPass.textureId);
 
-        for (const std::pair<int, int>& uniformInt : renderPass.uniformsInt) {
-            int id = uniformInt.first;
+        for (const auto& uniformInt : renderPass.uniformsInt) {
+            int id = uniformInt.first.idx;
             int value = uniformInt.second;
             glUniform1i(shader.uniforms[id], value);
         }
 
-        for (const std::pair<int, float>& uniformFloat : renderPass.uniformsFloat) {
-            int id = uniformFloat.first;
+        for (const auto& uniformFloat : renderPass.uniformsFloat) {
+            int id = uniformFloat.first.idx;
             float value = uniformFloat.second;
             glUniform1f(shader.uniforms[id], value);
         }
 
         for (const AttributeInfo& attrInfo : renderPass.attributes) {
-            int attr = shader.attributes[attrInfo.attr];
+            int attr = shader.attributes[attrInfo.attrH.idx];
             GLboolean normalized = attrInfo.normalized ? GL_TRUE : GL_FALSE;
             glBindBuffer(GL_ARRAY_BUFFER, attrInfo.bufferId);
             glEnableVertexAttribArray(attr);
