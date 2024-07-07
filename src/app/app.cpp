@@ -231,65 +231,71 @@ extern "C" int appInit() {
     app.radius = 5.0f;
 
     // Horizontal blur pass
-    app.pass0.frame = app.frameA;
-    app.pass0.shader = app.shaderHoriBlur;
-    app.pass0.textureId = app.texture;
-    app.pass0.textureUnit = app.textureUnit;
-    app.pass0.uniformsInt = {
-        { app.shaderHoriBlur_uTexture, app.textureUnit },
-        { app.shaderHoriBlur_uWidth,   windowInfo.width       },
-        { app.shaderHoriBlur_uHeight,  windowInfo.height      },
+    app.pass0 = {
+        app.frameA,
+        app.shaderHoriBlur,
+        app.texture,
+        app.textureUnit,
+        {
+            { app.shaderHoriBlur_uTexture, app.textureUnit },
+            { app.shaderHoriBlur_uWidth,   windowInfo.width       },
+            { app.shaderHoriBlur_uHeight,  windowInfo.height      },
+        },
+        {
+            { app.shaderHoriBlur_uRadius,  app.radius }
+        },
+        {
+            { app.shaderHoriBlur_aPosition, app.quadPos },
+            { app.shaderHoriBlur_aTexture,  app.quadTex }
+        },
+        6
     };
-    app.pass0.uniformsFloat = {
-        { app.shaderHoriBlur_uRadius,  app.radius }
-    };
-    app.pass0.attributes = {
-        { app.shaderHoriBlur_aPosition, app.quadPos },
-        { app.shaderHoriBlur_aTexture,  app.quadTex }
-    };
-    app.pass0.vertexCount = 6;
 
     // Vertical blur pass
-    app.pass1.frame = invFraH;
-    app.pass1.shader = app.shaderVertBlur;
-    app.pass1.textureId = app.graphics.getFrameTexture(app.frameA);
-    app.pass1.textureUnit = app.textureUnit;
-    app.pass1.uniformsInt = {
-        { app.shaderVertBlur_uTexture, app.textureUnit },
-        { app.shaderVertBlur_uWidth,   windowInfo.width       },
-        { app.shaderVertBlur_uHeight,  windowInfo.height      },
+    app.pass1 = {
+        invFraH,
+        app.shaderVertBlur,
+        app.graphics.getFrameTexture(app.frameA),
+        app.textureUnit,
+        {
+            { app.shaderVertBlur_uTexture, app.textureUnit },
+            { app.shaderVertBlur_uWidth,   windowInfo.width       },
+            { app.shaderVertBlur_uHeight,  windowInfo.height      },
+        },
+        {
+            { app.shaderVertBlur_uRadius,  app.radius }
+        },
+        {
+            { app.shaderVertBlur_aPosition, app.quadPos },
+            { app.shaderVertBlur_aTexture,  app.quadTex }
+        },
+        6
     };
-    app.pass1.uniformsFloat = {
-        { app.shaderVertBlur_uRadius,  app.radius }
-    };
-    app.pass1.attributes = {
-        { app.shaderVertBlur_aPosition, app.quadPos },
-        { app.shaderVertBlur_aTexture,  app.quadTex }
-    };
-    app.pass1.vertexCount = 6;
 
     // Uncomment to render the original image
-//    app.pass1.frame = invFraH;
-//    app.pass1.shader = app.shaderImage;
-//    app.pass1.textureId = app.texture;
-//    app.pass1.textureUnit = app.textureUnit;
-//    app.pass1.uniformsInt = {
-//        { app.shaderImage_uTexture, app.textureUnit },
+//    app.pass1 = {
+//        invFraH,
+//        app.shaderImage,
+//        app.texture,
+//        app.textureUnit,
+//        {
+//            { app.shaderImage_uTexture, app.textureUnit },
+//        },
+//        { },
+//        {
+//            { app.shaderImage_aPosition, app.quadPos },
+//            { app.shaderImage_aTexture,  app.quadTex }
+//        },
+//        6
 //    };
-//    app.pass1.uniformsFloat = { };
-//    app.pass1.attributes = {
-//        { app.shaderImage_aPosition, app.quad, 3, false, 5 * sizeof(float), 0 },
-//        { app.shaderImage_aTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
-//    };
-//    app.pass1.vertexCount = 6;
 
     return 1;
 }
 
 extern "C" int appRender(void) {
-    app.graphics.addRenderPass(app.pass0);
-    app.graphics.addRenderPass(app.pass1);
-    app.graphics.render();
+    app.graphics.clear();
+    app.graphics.render(app.pass0);
+    app.graphics.render(app.pass1);
     return 1;
 }
 

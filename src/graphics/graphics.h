@@ -33,9 +33,6 @@ struct RenderPass {
     int vertexCount;
 };
 
-struct GraphicsInfo {
-};
-
 class GraphicsState;
 
 class Graphics {
@@ -57,14 +54,9 @@ public:
     MeshH addMesh(int dimensions, int vertexCount, float* data, int size);
     int addTexture(const Image& image);
     int getFrameTexture(FraH frame);
-    void addRenderPass(const RenderPass& pass);
-    void render();
+    void clear();
+    void render(const RenderPass& pass);
     
 private:
     GraphicsState* state;
-    int width;
-    int height;
-    int defaultFrameBufferWidth;
-    int defaultFrameBufferHeight;
-    std::vector<RenderPass> renderPasses;
 };

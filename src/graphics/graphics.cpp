@@ -81,6 +81,10 @@ static int createProgram(int vertexShader, int fragmentShader, int* program) {
 
 class GraphicsState{
 public:
+    int width;
+    int height;
+    int defaultFrameBufferWidth;
+    int defaultFrameBufferHeight;
     std::vector<Shader> shaders;
     std::vector<Frame>  frames;
     std::vector<Mesh>   meshes;
@@ -96,10 +100,10 @@ Graphics::~Graphics() {
 }
 
 bool Graphics::init(const float windowScaleFactor, const int width, const int height) {
-    this->width = width;
-    this->height = height;
-    defaultFrameBufferWidth = width * windowScaleFactor;
-    defaultFrameBufferHeight = height * windowScaleFactor;
+    state->width = width;
+    state->height = height;
+    state->defaultFrameBufferWidth = width * windowScaleFactor;
+    state->defaultFrameBufferHeight = height * windowScaleFactor;
     glViewport(0, 0, width, height);
     initialized = true;
     return true;
@@ -217,61 +221,57 @@ int Graphics::getFrameTexture(FraH frame) {
     return state->frames[frame.idx].texture;
 }
 
-void Graphics::addRenderPass(const RenderPass& pass) {
-    renderPasses.push_back(pass);
-}
-
-void Graphics::render() {
+void Graphics::clear() {
     glClearColor(.1f, .1f, .1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (const RenderPass& renderPass : renderPasses) {
-        Shader& shader = state->shaders[renderPass.shader.idx];
-        glUseProgram(shader.program);
+}
 
-        if (renderPass.frame.idx != -1) {
-            const Frame& frame = state->frames[renderPass.frame.idx];
-            glViewport(0, 0, frame.width, frame.height);
-            glBindFramebuffer(GL_FRAMEBUFFER, frame.id);
-        } else { // Binding to the default FrameBuffer
-            glViewport(0, 0, defaultFrameBufferWidth, defaultFrameBufferHeight);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        }
+void Graphics::render(const RenderPass& pass) {
+    Shader& shader = state->shaders[pass.shader.idx];
+    glUseProgram(shader.program);
 
-        glActiveTexture(GL_TEXTURE0 + renderPass.textureUnit);
-        glBindTexture(GL_TEXTURE_2D, renderPass.textureId);
-
-        for (const auto& uniformInt : renderPass.uniformsInt) {
-            int id = uniformInt.first.idx;
-            int value = uniformInt.second;
-            glUniform1i(shader.uniforms[id], value);
-        }
-
-        for (const auto& uniformFloat : renderPass.uniformsFloat) {
-            int id = uniformFloat.first.idx;
-            float value = uniformFloat.second;
-            glUniform1f(shader.uniforms[id], value);
-        }
-
-        for (const auto& attribute : renderPass.attributes) {
-            int attr = shader.attributes[attribute.first.idx];
-            const Mesh& mesh = state->meshes[attribute.second.idx];
-            glBindBuffer(GL_ARRAY_BUFFER, mesh.id);
-            glEnableVertexAttribArray(attr);
-            glVertexAttribPointer(
-                attr,
-                mesh.dimensions,
-                GL_FLOAT,
-                GL_FALSE,
-                mesh.dimensions * sizeof(float),
-                reinterpret_cast<void*>(0)
-            );
-        }
-
-        glDrawArrays(GL_TRIANGLES, 0, renderPass.vertexCount);
-
-        for (int attr : shader.attributes) {
-            glDisableVertexAttribArray(attr);
-        }
+    if (pass.frame.idx != -1) {
+        const Frame& frame = state->frames[pass.frame.idx];
+        glViewport(0, 0, frame.width, frame.height);
+        glBindFramebuffer(GL_FRAMEBUFFER, frame.id);
+    } else { // Binding to the default FrameBuffer
+        glViewport(0, 0, state->defaultFrameBufferWidth, state->defaultFrameBufferHeight);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    renderPasses.clear();
+
+    glActiveTexture(GL_TEXTURE0 + pass.textureUnit);
+    glBindTexture(GL_TEXTURE_2D, pass.textureId);
+
+    for (const auto& uniformInt : pass.uniformsInt) {
+        int id = uniformInt.first.idx;
+        int value = uniformInt.second;
+        glUniform1i(shader.uniforms[id], value);
+    }
+
+    for (const auto& uniformFloat : pass.uniformsFloat) {
+        int id = uniformFloat.first.idx;
+        float value = uniformFloat.second;
+        glUniform1f(shader.uniforms[id], value);
+    }
+
+    for (const auto& attribute : pass.attributes) {
+        int attr = shader.attributes[attribute.first.idx];
+        const Mesh& mesh = state->meshes[attribute.second.idx];
+        glBindBuffer(GL_ARRAY_BUFFER, mesh.id);
+        glEnableVertexAttribArray(attr);
+        glVertexAttribPointer(
+            attr,
+            mesh.dimensions,
+            GL_FLOAT,
+            GL_FALSE,
+            mesh.dimensions * sizeof(float),
+            reinterpret_cast<void*>(0)
+        );
+    }
+
+    glDrawArrays(GL_TRIANGLES, 0, pass.vertexCount);
+
+    for (int attr : shader.attributes) {
+        glDisableVertexAttribArray(attr);
+    }
 }
