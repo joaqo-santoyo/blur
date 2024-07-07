@@ -13,51 +13,27 @@ struct FraH  { int idx; };
 struct ShaH  { int idx; };
 struct UniH  { int idx; };
 struct AttrH { int idx; };
+struct MeshH { int idx; };
 
 extern FraH  invFraH;
 extern ShaH  invShaH;
 extern UniH  invUniH;
 extern AttrH invAttrH;
+extern MeshH invMeshH;
 
-
-
-struct AttributeInfo {
-    AttrH attrH;
-    int bufferId;
-    int count;
-    bool normalized;
-    int stride;
-    int offset;
-};
 
 struct RenderPass {
     FraH frame;
     ShaH shader;
     int textureId;
     int textureUnit;
-    std::vector<std::pair<UniH, int>> uniformsInt;
-    std::vector<std::pair<UniH, float>> uniformsFloat;
-    std::vector<AttributeInfo> attributes;
+    std::vector<std::pair<UniH,  int>> uniformsInt;
+    std::vector<std::pair<UniH,  float>> uniformsFloat;
+    std::vector<std::pair<AttrH, MeshH>> attributes;
     int vertexCount;
 };
 
 struct GraphicsInfo {
-    float windowScaleFactor;
-    int width;
-    int height;
-};
-
-struct Frame {
-    unsigned int id;
-    unsigned int texture;
-    int width;
-    int height;
-};
-
-struct Shader {
-    int program;
-    std::vector<int> uniforms;
-    std::vector<int> attributes;
 };
 
 class GraphicsState;
@@ -67,7 +43,7 @@ public:
     bool initialized = false;
     Graphics();
     ~Graphics();
-    bool init(const GraphicsInfo& info);
+    bool init(const float windowScaleFactor, const int width, const int height);
 
     FraH addFrame(const int width, const int height);
     ShaH addShader(
@@ -78,8 +54,7 @@ public:
         const std::vector<std::pair<UniH&,  const char*>>& uniInfos,
         const std::vector<std::pair<AttrH&, const char*>>& attrInfos
     );
-
-    int addMesh(float* data, int size);
+    MeshH addMesh(int dimensions, int vertexCount, float* data, int size);
     int addTexture(const Image& image);
     int getFrameTexture(FraH frame);
     void addRenderPass(const RenderPass& pass);
@@ -92,6 +67,4 @@ private:
     int defaultFrameBufferWidth;
     int defaultFrameBufferHeight;
     std::vector<RenderPass> renderPasses;
-    std::vector<Shader> shaders;
-    std::vector<Frame> frames;
 };

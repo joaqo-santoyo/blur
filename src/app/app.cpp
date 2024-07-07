@@ -91,13 +91,6 @@ void main() {
 WindowInfo windowInfo;
 struct App {
     Graphics graphics;
-    Image image;
-    int texture;
-    int textureUnit;
-    int quad;
-    float radius;
-    RenderPass pass0;
-    RenderPass pass1;
 
     FraH  frameA;
     
@@ -121,6 +114,16 @@ struct App {
     UniH  shaderVertBlur_uRadius;
     AttrH shaderVertBlur_aPosition;
     AttrH shaderVertBlur_aTexture;
+    
+    RenderPass pass0;
+    RenderPass pass1;
+    
+    Image image;
+    float radius;
+    int texture;
+    int textureUnit;
+    MeshH quadPos;
+    MeshH quadTex;
 
 } app;
 
@@ -200,23 +203,29 @@ extern "C" int appInit() {
     );
 
 
-    GraphicsInfo graphicsInfo;
-    graphicsInfo.windowScaleFactor = windowInfo.scaleFactor;
-    graphicsInfo.width = windowInfo.width;
-    graphicsInfo.height = windowInfo.height;
-    if (!app.graphics.init(graphicsInfo)) {
+    if (!app.graphics.init(windowInfo.scaleFactor, windowInfo.width, windowInfo.height)) {
         return 0;
     }
 
-    float quadData[] = {
-        -1, -1, 0, 0, 0,
-         1,  1, 0, 1, 1,
-        -1,  1, 0, 0, 1,
-        -1, -1, 0, 0, 0,
-         1, -1, 0, 1, 0,
-         1,  1, 0, 1, 1,
+    float quadPosData[] = {
+        -1, -1, 0,
+         1,  1, 0,
+        -1,  1, 0,
+        -1, -1, 0,
+         1, -1, 0,
+         1,  1, 0,
     };
-    app.quad = app.graphics.addMesh(quadData, 6 * 5 * sizeof(float));
+    
+    float quadTexData[] = {
+        0, 0,
+        1, 1,
+        0, 1,
+        0, 0,
+        1, 0,
+        1, 1,
+    };
+    app.quadPos = app.graphics.addMesh(3, 6, quadPosData, sizeof(quadPosData));
+    app.quadTex = app.graphics.addMesh(2, 6, quadTexData, sizeof(quadTexData));
     app.texture = app.graphics.addTexture(app.image);
     app.textureUnit = 0; // Always the same texture unit
     app.radius = 5.0f;
@@ -235,8 +244,8 @@ extern "C" int appInit() {
         { app.shaderHoriBlur_uRadius,  app.radius }
     };
     app.pass0.attributes = {
-        { app.shaderHoriBlur_aPosition, app.quad, 3, false, 5 * sizeof(float), 0 },
-        { app.shaderHoriBlur_aTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+        { app.shaderHoriBlur_aPosition, app.quadPos },
+        { app.shaderHoriBlur_aTexture,  app.quadTex }
     };
     app.pass0.vertexCount = 6;
 
@@ -254,8 +263,8 @@ extern "C" int appInit() {
         { app.shaderVertBlur_uRadius,  app.radius }
     };
     app.pass1.attributes = {
-        { app.shaderVertBlur_aPosition, app.quad, 3, false, 5 * sizeof(float), 0 },
-        { app.shaderVertBlur_aTexture,  app.quad, 2, false, 5 * sizeof(float), 3 * sizeof(float) }
+        { app.shaderVertBlur_aPosition, app.quadPos },
+        { app.shaderVertBlur_aTexture,  app.quadTex }
     };
     app.pass1.vertexCount = 6;
 

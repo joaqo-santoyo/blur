@@ -12,8 +12,29 @@ FraH  invFraH  = { -1 };
 ShaH  invShaH  = { -1 };
 UniH  invUniH  = { -1 };
 AttrH invAttrH = { -1 };
+MeshH invMeshH = { -1 };
 
 
+
+struct Frame {
+    unsigned int id;
+    unsigned int texture;
+    int width;
+    int height;
+};
+
+struct Shader {
+    int program;
+    std::vector<int> uniforms;
+    std::vector<int> attributes;
+};
+
+struct Mesh {
+    unsigned int id;
+    int dimensions;
+    int vertexCount;
+    int size;
+};
 
 static int compileShader(const std::vector<const char*>& defines, const char* source, int* shader, GLenum type) {
     int s = glCreateShader(type);
@@ -62,6 +83,7 @@ class GraphicsState{
 public:
     std::vector<Shader> shaders;
     std::vector<Frame>  frames;
+    std::vector<Mesh>   meshes;
 };
 
 
@@ -71,6 +93,16 @@ Graphics::Graphics(){
 
 Graphics::~Graphics() {
     delete state;
+}
+
+bool Graphics::init(const float windowScaleFactor, const int width, const int height) {
+    this->width = width;
+    this->height = height;
+    defaultFrameBufferWidth = width * windowScaleFactor;
+    defaultFrameBufferHeight = height * windowScaleFactor;
+    glViewport(0, 0, width, height);
+    initialized = true;
+    return true;
 }
 
 FraH Graphics::addFrame(const int width, const int height) {
@@ -139,25 +171,16 @@ ShaH Graphics::addShader(
     return ShaH{ idx };
 }
 
-
- 
-bool Graphics::init(const GraphicsInfo& info) {
-    width = info.width;
-    height = info.height;
-    defaultFrameBufferWidth = width * info.windowScaleFactor;
-    defaultFrameBufferHeight = height * info.windowScaleFactor;
-    glViewport(0, 0, width, height);
-    initialized = true;
-    return true;
-}
-
-
-int Graphics::addMesh(float* data, int size) {
-    int mesh;
-    glGenBuffers(1, (GLuint*)&mesh);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh);
-    glBufferData(GL_ARRAY_BUFFER, 6 * 5 * sizeof(float), data, GL_STATIC_DRAW);
-    return mesh;
+MeshH Graphics::addMesh(int dimensions, int vertexCount, float* data, int size) {
+    Mesh mesh;
+    glGenBuffers(1, (GLuint*)&mesh.id);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.id);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * dimensions * sizeof(float), data, GL_STATIC_DRAW);
+    mesh.dimensions = dimensions;
+    mesh.vertexCount = vertexCount;
+    int idx = static_cast<int>(state->meshes.size());
+    state->meshes.push_back(std::move(mesh));
+    return MeshH{ idx };
 }
 
 int Graphics::addTexture(const Image& image) {
@@ -229,12 +252,19 @@ void Graphics::render() {
             glUniform1f(shader.uniforms[id], value);
         }
 
-        for (const AttributeInfo& attrInfo : renderPass.attributes) {
-            int attr = shader.attributes[attrInfo.attrH.idx];
-            GLboolean normalized = attrInfo.normalized ? GL_TRUE : GL_FALSE;
-            glBindBuffer(GL_ARRAY_BUFFER, attrInfo.bufferId);
+        for (const auto& attribute : renderPass.attributes) {
+            int attr = shader.attributes[attribute.first.idx];
+            const Mesh& mesh = state->meshes[attribute.second.idx];
+            glBindBuffer(GL_ARRAY_BUFFER, mesh.id);
             glEnableVertexAttribArray(attr);
-            glVertexAttribPointer(attr, attrInfo.count, GL_FLOAT, normalized, attrInfo.stride, reinterpret_cast<void*>(attrInfo.offset));
+            glVertexAttribPointer(
+                attr,
+                mesh.dimensions,
+                GL_FLOAT,
+                GL_FALSE,
+                mesh.dimensions * sizeof(float),
+                reinterpret_cast<void*>(0)
+            );
         }
 
         glDrawArrays(GL_TRIANGLES, 0, renderPass.vertexCount);
