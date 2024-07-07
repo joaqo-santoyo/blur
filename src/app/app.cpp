@@ -118,10 +118,10 @@ struct App {
     RenderPass pass0;
     RenderPass pass1;
     
-    Image image;
     float radius;
-    int texture;
     int textureUnit;
+    Image image;
+    TexH texture;
     MeshH quadPos;
     MeshH quadTex;
 
@@ -235,6 +235,7 @@ extern "C" int appInit() {
         app.frameA,
         app.shaderHoriBlur,
         app.texture,
+        invFraH,
         app.textureUnit,
         {
             { app.shaderHoriBlur_uTexture, app.textureUnit },
@@ -247,15 +248,15 @@ extern "C" int appInit() {
         {
             { app.shaderHoriBlur_aPosition, app.quadPos },
             { app.shaderHoriBlur_aTexture,  app.quadTex }
-        },
-        6
+        }
     };
 
     // Vertical blur pass
     app.pass1 = {
         invFraH,
         app.shaderVertBlur,
-        app.graphics.getFrameTexture(app.frameA),
+        invTexH,
+        app.frameA,
         app.textureUnit,
         {
             { app.shaderVertBlur_uTexture, app.textureUnit },
@@ -268,8 +269,7 @@ extern "C" int appInit() {
         {
             { app.shaderVertBlur_aPosition, app.quadPos },
             { app.shaderVertBlur_aTexture,  app.quadTex }
-        },
-        6
+        }
     };
 
     // Uncomment to render the original image
@@ -277,6 +277,7 @@ extern "C" int appInit() {
 //        invFraH,
 //        app.shaderImage,
 //        app.texture,
+//        invFraH,
 //        app.textureUnit,
 //        {
 //            { app.shaderImage_uTexture, app.textureUnit },
@@ -285,8 +286,7 @@ extern "C" int appInit() {
 //        {
 //            { app.shaderImage_aPosition, app.quadPos },
 //            { app.shaderImage_aTexture,  app.quadTex }
-//        },
-//        6
+//        }
 //    };
 
     return 1;

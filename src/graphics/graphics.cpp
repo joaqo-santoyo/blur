@@ -13,6 +13,7 @@ ShaH  invShaH  = { -1 };
 UniH  invUniH  = { -1 };
 AttrH invAttrH = { -1 };
 MeshH invMeshH = { -1 };
+TexH  invTexH  = { -1 };
 
 
 
@@ -34,6 +35,24 @@ struct Mesh {
     int dimensions;
     int vertexCount;
     int size;
+};
+
+struct Texture {
+    unsigned int id;
+    int width;
+    int height;
+};
+
+class GraphicsState{
+public:
+    int width;
+    int height;
+    int defaultFrameBufferWidth;
+    int defaultFrameBufferHeight;
+    std::vector<Shader>  shaders;
+    std::vector<Frame>   frames;
+    std::vector<Mesh>    meshes;
+    std::vector<Texture> textures;
 };
 
 static int compileShader(const std::vector<const char*>& defines, const char* source, int* shader, GLenum type) {
@@ -78,17 +97,6 @@ static int createProgram(int vertexShader, int fragmentShader, int* program) {
     *program = p;
     return 1;
 }
-
-class GraphicsState{
-public:
-    int width;
-    int height;
-    int defaultFrameBufferWidth;
-    int defaultFrameBufferHeight;
-    std::vector<Shader> shaders;
-    std::vector<Frame>  frames;
-    std::vector<Mesh>   meshes;
-};
 
 
 Graphics::Graphics(){
@@ -187,16 +195,16 @@ MeshH Graphics::addMesh(int dimensions, int vertexCount, float* data, int size) 
     return MeshH{ idx };
 }
 
-int Graphics::addTexture(const Image& image) {
-    int texture;
-    glGenTextures(1, (GLuint*)&texture);
+TexH Graphics::addTexture(const Image& image) {
+    Texture texture;
+    glGenTextures(1, (GLuint*)&texture.id);
     int glTextureType;
     switch (image.channels) {
     case 3:     glTextureType = GL_RGB;  break;
     case 4:     glTextureType = GL_RGBA; break;
     default:    glTextureType = GL_RGB;  break;
     }
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -214,11 +222,11 @@ int Graphics::addTexture(const Image& image) {
         GL_UNSIGNED_BYTE,
         image.pixels);
     glGenerateMipmap(GL_TEXTURE_2D);
-    return texture;
-}
-
-int Graphics::getFrameTexture(FraH frame) {
-    return state->frames[frame.idx].texture;
+    texture.width = image.width;
+    texture.height = image.height;
+    int idx = static_cast<int>(state->textures.size());
+    state->textures.push_back(std::move(texture));
+    return TexH{ idx };
 }
 
 void Graphics::clear() {
@@ -239,8 +247,16 @@ void Graphics::render(const RenderPass& pass) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    int textureId;
+    if (pass.texture.idx != -1) {
+        const auto& texture = state->textures[pass.texture.idx];
+        textureId = texture.id;
+    } else {
+        const auto& frame = state->frames[pass.frameIn.idx];
+        textureId = frame.texture;
+    }
     glActiveTexture(GL_TEXTURE0 + pass.textureUnit);
-    glBindTexture(GL_TEXTURE_2D, pass.textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
 
     for (const auto& uniformInt : pass.uniformsInt) {
         int id = uniformInt.first.idx;
@@ -254,9 +270,13 @@ void Graphics::render(const RenderPass& pass) {
         glUniform1f(shader.uniforms[id], value);
     }
 
+    int vertexCount = -1;
     for (const auto& attribute : pass.attributes) {
         int attr = shader.attributes[attribute.first.idx];
         const Mesh& mesh = state->meshes[attribute.second.idx];
+        if (vertexCount == -1) { // Use the first bound mesh to set vertex count
+            vertexCount = mesh.vertexCount;
+        }
         glBindBuffer(GL_ARRAY_BUFFER, mesh.id);
         glEnableVertexAttribArray(attr);
         glVertexAttribPointer(
@@ -269,7 +289,7 @@ void Graphics::render(const RenderPass& pass) {
         );
     }
 
-    glDrawArrays(GL_TRIANGLES, 0, pass.vertexCount);
+    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
     for (int attr : shader.attributes) {
         glDisableVertexAttribArray(attr);

@@ -14,23 +14,25 @@ struct ShaH  { int idx; };
 struct UniH  { int idx; };
 struct AttrH { int idx; };
 struct MeshH { int idx; };
+struct TexH  { int idx; };
 
 extern FraH  invFraH;
 extern ShaH  invShaH;
 extern UniH  invUniH;
 extern AttrH invAttrH;
 extern MeshH invMeshH;
+extern TexH  invTexH;
 
 
 struct RenderPass {
     FraH frame;
     ShaH shader;
-    int textureId;
+    TexH texture;
+    FraH frameIn;
     int textureUnit;
     std::vector<std::pair<UniH,  int>> uniformsInt;
     std::vector<std::pair<UniH,  float>> uniformsFloat;
     std::vector<std::pair<AttrH, MeshH>> attributes;
-    int vertexCount;
 };
 
 class GraphicsState;
@@ -52,8 +54,7 @@ public:
         const std::vector<std::pair<AttrH&, const char*>>& attrInfos
     );
     MeshH addMesh(int dimensions, int vertexCount, float* data, int size);
-    int addTexture(const Image& image);
-    int getFrameTexture(FraH frame);
+    TexH addTexture(const Image& image);
     void clear();
     void render(const RenderPass& pass);
     
