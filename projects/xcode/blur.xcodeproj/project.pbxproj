@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D208B2C92A74ABC40001F74C /* images.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D208B2C82A74ABC40001F74C /* images.cpp */; };
+		D212AD752C3CA7490061D50C /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D212AD742C3CA7490061D50C /* README.md */; };
 		D2967E282A72028300529624 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2967E272A72028300529624 /* app.cpp */; };
 		D2967E2B2A7202F500529624 /* main-mac.m in Sources */ = {isa = PBXBuildFile; fileRef = D2967E2A2A7202F500529624 /* main-mac.m */; };
 		D2967E2F2A72141700529624 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2967E2E2A72141600529624 /* graphics.cpp */; };
@@ -17,6 +18,7 @@
 /* Begin PBXFileReference section */
 		D208B2C72A74ABC40001F74C /* images.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = images.h; sourceTree = "<group>"; };
 		D208B2C82A74ABC40001F74C /* images.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = images.cpp; path = ../../src/images/images.cpp; sourceTree = "<group>"; };
+		D212AD742C3CA7490061D50C /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../../../README.md; sourceTree = "<group>"; };
 		D2967E262A72028300529624 /* app.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = app.h; path = ../../src/app/app.h; sourceTree = SOURCE_ROOT; };
 		D2967E272A72028300529624 /* app.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = ../../src/app/app.cpp; sourceTree = SOURCE_ROOT; };
 		D2967E2A2A7202F500529624 /* main-mac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "main-mac.m"; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 		D2C7EFBC2A6E2458005FCFF9 /* blur */ = {
 			isa = PBXGroup;
 			children = (
+				D212AD742C3CA7490061D50C /* README.md */,
 				D2967E292A7202E300529624 /* main */,
 				D2967E212A7201F000529624 /* app */,
 				D2967E232A72020100529624 /* graphics */,
@@ -165,6 +168,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D212AD752C3CA7490061D50C /* README.md in Resources */,
 				D2C7EFC42A6E2458005FCFF9 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
